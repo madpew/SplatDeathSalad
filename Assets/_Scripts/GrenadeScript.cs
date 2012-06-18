@@ -50,9 +50,11 @@ public class GrenadeScript : MonoBehaviour {
 				moveVector = Vector3.Reflect(moveVector, hitInfo.normal);
 				moveVector *= 0.8f;
 				
-				
-				audio.clip = sfx_bounce;
-				audio.Play();
+				if (moveVector.magnitude > 2f)
+				{
+					audio.clip = sfx_bounce;
+					audio.Play();
+				}
 			}
 			lastPos = transform.position;
 			
