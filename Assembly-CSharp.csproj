@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+	<Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+	<ProductVersion>10.0.20506</ProductVersion>
+	<SchemaVersion>2.0</SchemaVersion>
+	<ProjectGuid>{7F5F7C6F-512B-ACCF-325E-F1938161BE47}</ProjectGuid>
+	<OutputType>Library</OutputType>
+	<AppDesignerFolder>Properties</AppDesignerFolder>
+	<RootNamespace></RootNamespace>
+	<AssemblyName>Assembly-CSharp</AssemblyName>
+	<TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+	<FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+	<DebugSymbols>true</DebugSymbols>
+	<DebugType>full</DebugType>
+	<Optimize>false</Optimize>
+	<OutputPath>Temp\bin\Debug\</OutputPath>
+	<DefineConstants>DEBUG;TRACE;UNITY_3_5_2;UNITY_3_5;UNITY_EDITOR;ENABLE_PROFILER;UNITY_STANDALONE_WIN;ENABLE_GENERICS;ENABLE_DUCK_TYPING;ENABLE_TERRAIN;ENABLE_MOVIES;ENABLE_WEBCAM;ENABLE_MICROPHONE;ENABLE_NETWORK;ENABLE_CLOTH;ENABLE_WWW;ENABLE_SUBSTANCE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	<DebugType>pdbonly</DebugType>
+	<Optimize>true</Optimize>
+	<OutputPath>Temp\bin\Release\</OutputPath>
+	<DefineConstants>TRACE</DefineConstants>
+	<ErrorReport>prompt</ErrorReport>
+	<WarningLevel>4</WarningLevel>
+	<NoWarn>0169</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+	<Reference Include="System" />
+    <Reference Include="System.XML" />
+	<Reference Include="System.Core" />
+	<Reference Include="UnityEngine">
+	  <HintPath>/Applications/Unity/Unity.app/Contents/Frameworks/Managed/UnityEngine.dll</HintPath>
+	</Reference>
+	<Reference Include="UnityEditor">
+	  <HintPath>/Applications/Unity/Unity.app/Contents/Frameworks/Managed/UnityEditor.dll</HintPath>
+	</Reference>
+  </ItemGroup>
+  <ItemGroup>
+     <Compile Include="Assets\_Scripts\BasketballScript.cs" />
+     <Compile Include="Assets\_Scripts\ChatMessage.cs" />
+     <Compile Include="Assets\_Scripts\FPSArtillery.cs" />
+     <Compile Include="Assets\_Scripts\FPSEntity.cs" />
+     <Compile Include="Assets\_Scripts\FPSGUI.cs" />
+     <Compile Include="Assets\_Scripts\FPSMessages.cs" />
+     <Compile Include="Assets\_Scripts\FPSPlayer.cs" />
+     <Compile Include="Assets\_Scripts\GameModeScript.cs" />
+     <Compile Include="Assets\_Scripts\GrenadeFlashScript.cs" />
+     <Compile Include="Assets\_Scripts\GrenadeScript.cs" />
+     <Compile Include="Assets\_Scripts\GunTypeScript.cs" />
+     <Compile Include="Assets\_Scripts\LevelInfoScript.cs" />
+     <Compile Include="Assets\_Scripts\LevelLightScript.cs" />
+     <Compile Include="Assets\_Scripts\MuzzleFlashLightScript.cs" />
+     <Compile Include="Assets\_Scripts\PickupBoxScript.cs" />
+     <Compile Include="Assets\_Scripts\PickupPoint.cs" />
+     <Compile Include="Assets\_Scripts\RibbonScript.cs" />
+     <Compile Include="Assets\_Scripts\RifleDissipationScript.cs" />
+     <Compile Include="Assets\_Scripts\RocketScript.cs" />
+     <Compile Include="Assets\_Scripts\SimplePistolBullet.cs" />
+     <Compile Include="Assets\_Scripts\SophieNetworkScript.cs" />
+     <Compile Include="Assets\_Scripts\SoundObjScript.cs" />
+     <Compile Include="Assets\_Scripts\SpawnPointScript.cs" />
+     <Compile Include="Assets\_Scripts\SplatScript.cs" />
+     <Compile Include="Assets\_Scripts\SwapperBullet.cs" />
+     <Compile Include="Assets\_Scripts\UnRibbon.cs" />
+     <None Include="Assets\StrumpyShaderEditor\Editor\Resources\Internal\Temp\TempShader.shader" />
+     <None Include="Assets\_Scripts\clipButShadow.shader" />
+     <None Include="Assets\StrumpyShaderEditor\Editor\Resources\Internal\TextureCopy.shader" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+	   Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+  
+</Project>

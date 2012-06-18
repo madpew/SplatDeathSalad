@@ -1,0 +1,43 @@
+GfxDevice: creating device client; threaded=1
+Direct3D:
+    Version:  Direct3D 9.0c [nvd3dum.dll 8.17.12.9610]
+    Renderer: NVIDIA GeForce 9800 GTX+
+    Vendor:   NVIDIA
+    VRAM:     497 MB (via DXGI)
+    Caps:     Shader=30 DepthRT=1 NativeDepth=1 NativeShadow=1 DF16=0 DF24=0 INTZ=1 RAWZ=0 NULL=1 RESZ=0 SlowINTZ=0
+desktop: 1920x1080 60Hz; virtual: 3840x1080 at -1920,0
+<I> Initializing (RawInput).
+<RI> Input initialized.
+Initialize engine version: 3.5.2f2
+Begin MonoManager ReloadAssembly
+Platform assembly: C:\Users\Mathias\Documents\GitHub\SplatDeathSalad\Release\SDS_Data\Managed\UnityEngine.dll (this message is harmless)
+Loading C:\Users\Mathias\Documents\GitHub\SplatDeathSalad\Release\SDS_Data\Managed\UnityEngine.dll into Unity Child Domain
+Platform assembly: C:\Users\Mathias\Documents\GitHub\SplatDeathSalad\Release\SDS_Data\Managed\Assembly-CSharp.dll (this message is harmless)
+Loading C:\Users\Mathias\Documents\GitHub\SplatDeathSalad\Release\SDS_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
+- Completed reload, in  0.201 seconds
+Unloading 3 Unused Serialized files (Serialized files now loaded: 0 / Dirty serialized files: 0)
+
+Unloading 2 unused Assets to reduce memory usage. Loaded Objects now: 844. Operation took 6.875363 ms.
+Initialising server, has public address: False
+ 
+(Filename: C:/BuildAgent/work/300357e52574df36/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 43)
+
+Server initialized, now registering...
+ 
+(Filename: C:/BuildAgent/work/300357e52574df36/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 43)
+
+Server registered
+ 
+(Filename: C:/BuildAgent/work/300357e52574df36/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 43)
+
+Unloading 4 Unused Serialized files (Serialized files now loaded: 0 / Dirty serialized files: 0)
+
+Unloading 6 unused Assets to reduce memory usage. Loaded Objects now: 2109. Operation took 6.447013 ms.
+Received player info! - Player Playerson - Lives: 0
+ 
+(Filename: C:/BuildAgent/work/300357e52574df36/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 43)
+
+Disconnected from server
+ 
+(Filename: C:/BuildAgent/work/300357e52574df36/Runtime/ExportGenerated/StandalonePlayer/UnityEngineDebug.cpp Line: 43)
+
