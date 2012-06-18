@@ -17,7 +17,7 @@ public class SimplePistolBullet : MonoBehaviour {
 		
 		lr.SetPosition(0,start);
 		lr.SetPosition(1,end);
-		
+		lr.SetWidth(0.2f,0.2f);
 		lr.SetColors(col,col);
 	}
 	

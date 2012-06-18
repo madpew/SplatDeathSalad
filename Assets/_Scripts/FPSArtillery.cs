@@ -167,12 +167,12 @@ public class FPSArtillery : MonoBehaviour {
 	}
 	
 	public static float GetWeaponDamage(string weaponType){
-		if (weaponType == "pistol") return 15f;
-		if (weaponType == "grenade") return 100f;
+		if (weaponType == "pistol") return 10f;
+		if (weaponType == "grenade") return 70f;
 		if (weaponType == "machinegun") return 5f;
-		if (weaponType == "rifle") return 80f;
+		if (weaponType == "rifle") return 60f;
 		if (weaponType == "suicide") return 9999f;
-		if (weaponType == "rocket") return 100f;
+		if (weaponType == "rocket") return 70f;
 		if (weaponType == "lava") return 9999f;
 		return 0;
 	}

@@ -11,7 +11,7 @@ public class SplatScript : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		moveVec = new Vector3(Random.Range(-5f,5f),Random.Range(2f,6f),Random.Range(-5f,5f));
-		transform.localScale = Vector3.one * Random.Range(0.1f,0.2f);
+		transform.localScale = Vector3.one * 0.5f * Random.Range(0.1f,0.2f);
 		life += Random.Range(-0.5f,0.4f);
 	}
 	
