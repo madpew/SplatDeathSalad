@@ -32,7 +32,7 @@ public class RocketScript : MonoBehaviour {
 			newDiss.transform.position = transform.position;
 			
 			RaycastHit hitInfo = new RaycastHit();
-			int layerMask = (1<<0);
+			int layerMask = (1<<0)|(1<<8);
 			Vector3 rayDirection = (transform.position - lastPos).normalized;
 			if (Physics.SphereCast(lastPos, 0.15f, rayDirection, out hitInfo, Vector3.Distance(transform.position, lastPos), layerMask)){
 				active = false;
@@ -43,7 +43,6 @@ public class RocketScript : MonoBehaviour {
 				}
 			}
 			lastPos = transform.position;
-			
 			
 			life-= Time.deltaTime;
 			if (life<=0f){
