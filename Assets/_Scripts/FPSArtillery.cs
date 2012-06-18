@@ -167,12 +167,12 @@ public class FPSArtillery : MonoBehaviour {
 	}
 	
 	public static float GetWeaponDamage(string weaponType){
-		if (weaponType == "pistol") return 40f;
-		if (weaponType == "grenade") return 70f;
-		if (weaponType == "machinegun") return 15f;
-		if (weaponType == "rifle") return 105f;
+		if (weaponType == "pistol") return 15f;
+		if (weaponType == "grenade") return 100f;
+		if (weaponType == "machinegun") return 5f;
+		if (weaponType == "rifle") return 80f;
 		if (weaponType == "suicide") return 9999f;
-		if (weaponType == "rocket") return 70f;
+		if (weaponType == "rocket") return 100f;
 		if (weaponType == "lava") return 9999f;
 		return 0;
 	}
@@ -210,6 +210,8 @@ public class FPSArtillery : MonoBehaviour {
 				GameObject grenadeFlash = (GameObject)GameObject.Instantiate(grenadeFlashPrefab);
 				grenadeFlash.transform.position = activeGrenades[i].transform.position;
 				grenadeFlash.transform.localScale = new Vector3(0.1f,0.1f,0.1f);
+				grenadeFlash.GetComponent<GrenadeFlashScript>().Rad = FPSArtillery.GetDetonationRadius("grenade");
+				
 				
 				GameObject grenadeSoundObj = (GameObject)GameObject.Instantiate(soundObjectPrefab);
 				grenadeSoundObj.transform.position = activeGrenades[i].transform.position;
@@ -257,6 +259,7 @@ public class FPSArtillery : MonoBehaviour {
 				GameObject grenadeFlash = (GameObject)GameObject.Instantiate(grenadeFlashPrefab);
 				grenadeFlash.transform.position = activeRockets[i].transform.position;
 				grenadeFlash.transform.localScale = new Vector3(0.1f,0.1f,0.1f);
+				grenadeFlash.GetComponent<GrenadeFlashScript>().Rad = FPSArtillery.GetDetonationRadius("rocket");
 				
 				GameObject rocketSoundObj = (GameObject)GameObject.Instantiate(soundObjectPrefab);
 				rocketSoundObj.transform.position = activeRockets[i].transform.position;
@@ -270,7 +273,7 @@ public class FPSArtillery : MonoBehaviour {
 	}
 	
 	public static float GetDetonationRadius(string weaponType){
-		if (weaponType == "grenade") return 4;
+		if (weaponType == "grenade") return 5;
 		if (weaponType == "rocket") return 4;
 		return 0;
 	}

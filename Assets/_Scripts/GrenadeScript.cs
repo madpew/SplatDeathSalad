@@ -31,7 +31,7 @@ public class GrenadeScript : MonoBehaviour {
 		lastPos = start;
 		detonationTime += Time.time;
 		
-		moveVector = direction * 20f;
+		moveVector = direction * 23f;
 	}
 	
 	// Update is called once per frame
@@ -40,7 +40,7 @@ public class GrenadeScript : MonoBehaviour {
 		if (active){
 			transform.position += moveVector * Time.deltaTime;
 			
-			moveVector.y -= Time.deltaTime * 10f;
+			moveVector.y -= Time.deltaTime * 23f;
 			
 			RaycastHit hitInfo = new RaycastHit();
 			int layerMask = (1<<0);

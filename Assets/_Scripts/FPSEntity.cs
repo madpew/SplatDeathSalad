@@ -491,7 +491,7 @@ public class FPSEntity : MonoBehaviour {
 						rpcCamtime = Time.time;// + 0.02f;
 					}
 					
-					if (handGun>=0 && handGunCooldown > 0f && handGunCooldown - Time.deltaTime <= 0f && artillery.gunTypes[handGun].fireCooldown>=1f) PlaySound("reload");
+					if (handGun>=0 && handGunCooldown > 0f && handGunCooldown - Time.deltaTime <= 0f && artillery.gunTypes[handGun].fireCooldown>=0.5f) PlaySound("reload");
 					handGunCooldown -= Time.deltaTime;
 					if (handGunCooldown<0f) handGunCooldown = 0f;
 					

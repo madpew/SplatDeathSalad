@@ -26,7 +26,7 @@ public class RocketScript : MonoBehaviour {
 	void Update () {
 		
 		if (active){
-			transform.position += transform.forward * Time.deltaTime * 30f;
+			transform.position += transform.forward * Time.deltaTime * 33.3f;
 			
 			GameObject newDiss = (GameObject)GameObject.Instantiate(dissPrefab);
 			newDiss.transform.position = transform.position;
