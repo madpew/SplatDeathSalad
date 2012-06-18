@@ -166,7 +166,7 @@ public class FPSArtillery : MonoBehaviour {
 		
 	}
 	
-	public float GetWeaponDamage(string weaponType){
+	public static float GetWeaponDamage(string weaponType){
 		if (weaponType == "pistol") return 40f;
 		if (weaponType == "grenade") return 70f;
 		if (weaponType == "machinegun") return 15f;
@@ -181,8 +181,35 @@ public class FPSArtillery : MonoBehaviour {
 		for (int i=0; i<activeGrenades.Count; i++){
 			if (viewID == activeGrenades[i].viewID){
 				
+				//grenade jumping
+				for (int k=0; k<theNetwork.players.Count; k++){
+					if (theNetwork.players[k].local){
+						float Dist = Vector3.Distance(theNetwork.players[k].fpsEntity.transform.position, activeGrenades[i].transform.position);
+						float push = 6;
+						if (Dist < GetDetonationRadius("grenade")){
+							
+							if (Dist > GetDetonationRadius("grenade")/2)
+							{
+								push = 4;
+							}
+							
+							if (theNetwork.players[k].fpsEntity.transform.position.y > activeGrenades[i].transform.position.y){
+								theNetwork.players[k].fpsEntity.yMove += push;
+							} else if (theNetwork.players[k].fpsEntity.transform.position.y < activeGrenades[i].transform.position.y){
+								theNetwork.players[k].fpsEntity.yMove -= push;
+							}
+							
+							theNetwork.players[k].fpsEntity.grounded = false;
+							theNetwork.players[k].fpsEntity.sendRPCUpdate = true;
+							
+							}
+						}
+					}
+				
+				
 				GameObject grenadeFlash = (GameObject)GameObject.Instantiate(grenadeFlashPrefab);
 				grenadeFlash.transform.position = activeGrenades[i].transform.position;
+				grenadeFlash.transform.localScale = new Vector3(0.1f,0.1f,0.1f);
 				
 				GameObject grenadeSoundObj = (GameObject)GameObject.Instantiate(soundObjectPrefab);
 				grenadeSoundObj.transform.position = activeGrenades[i].transform.position;
@@ -203,24 +230,33 @@ public class FPSArtillery : MonoBehaviour {
 				//rocket jumping
 				for (int k=0; k<theNetwork.players.Count; k++){
 					if (theNetwork.players[k].local){
-						if (Vector3.Distance(theNetwork.players[k].fpsEntity.transform.position, activeRockets[i].transform.position) < GetDetonationRadius("rocket")){
+						float Dist = Vector3.Distance(theNetwork.players[k].fpsEntity.transform.position, activeRockets[i].transform.position);
+						float push = 8;
+						if (Dist < GetDetonationRadius("rocket")){
+							
+							if (Dist > GetDetonationRadius("rocket")/2)
+							{
+								push = 5;
+							}
+							
 							if (theNetwork.players[k].fpsEntity.transform.position.y > activeRockets[i].transform.position.y){
-								if (activeRockets[i].shooterID == theNetwork.players[k].viewID){
-									theNetwork.players[k].fpsEntity.yMove = 8;
-								}else{
-									theNetwork.players[k].fpsEntity.yMove = 3;
-								}
-								theNetwork.players[k].fpsEntity.grounded = false;
-								theNetwork.players[k].fpsEntity.sendRPCUpdate = true;
+								theNetwork.players[k].fpsEntity.yMove += push;
+							} else if (theNetwork.players[k].fpsEntity.transform.position.y < activeRockets[i].transform.position.y){
+								theNetwork.players[k].fpsEntity.yMove -= push;
+							}
+							
+							theNetwork.players[k].fpsEntity.grounded = false;
+							theNetwork.players[k].fpsEntity.sendRPCUpdate = true;
+							
 							}
 						}
 					}
-				}
-				
+			
 				//detonate rocket
 				
 				GameObject grenadeFlash = (GameObject)GameObject.Instantiate(grenadeFlashPrefab);
 				grenadeFlash.transform.position = activeRockets[i].transform.position;
+				grenadeFlash.transform.localScale = new Vector3(0.1f,0.1f,0.1f);
 				
 				GameObject rocketSoundObj = (GameObject)GameObject.Instantiate(soundObjectPrefab);
 				rocketSoundObj.transform.position = activeRockets[i].transform.position;
@@ -229,14 +265,11 @@ public class FPSArtillery : MonoBehaviour {
 				
 				Destroy(activeRockets[i].gameObject);
 				activeRockets.RemoveAt(i);
-				
-				
-				
 			}
 		}
 	}
 	
-	public float GetDetonationRadius(string weaponType){
+	public static float GetDetonationRadius(string weaponType){
 		if (weaponType == "grenade") return 4;
 		if (weaponType == "rocket") return 4;
 		return 0;

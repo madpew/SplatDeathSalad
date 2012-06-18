@@ -48,7 +48,7 @@ public class GrenadeScript : MonoBehaviour {
 			if (Physics.SphereCast(lastPos, 0.15f, rayDirection, out hitInfo, Vector3.Distance(transform.position, lastPos), layerMask)){
 				transform.position = hitInfo.point + (hitInfo.normal*0.15f);
 				moveVector = Vector3.Reflect(moveVector, hitInfo.normal);
-				moveVector *= 0.8f;
+				moveVector *= 0.6f;
 				
 				if (moveVector.magnitude > 2f)
 				{

@@ -130,7 +130,7 @@ public class SophieNetworkScript : MonoBehaviour {
 		if (isServer){
 			//we are server, lets check to see if anyone got hurt in the detonation
 			for (int i=0; i<players.Count; i++){
-				if (Vector3.Distance(position, players[i].fpsEntity.transform.position) < artilleryScript.GetDetonationRadius(weaponType) + 0.5f){
+				if (Vector3.Distance(position, players[i].fpsEntity.transform.position) < FPSArtillery.GetDetonationRadius(weaponType) + 0.5f){
 					//player in range
 					
 					bool skip = false;
@@ -212,12 +212,12 @@ public class SophieNetworkScript : MonoBehaviour {
 		
 		
 		//subtract health
-		if (shooterIndex == victimIndex && weaponType == "rocket"){
-			//rocket jumping
-			players[victimIndex].health -=30f;
+		if (shooterIndex == victimIndex && (weaponType == "rocket" || weaponType == "grenade")){
+			//rocket jumping + grenade jumping
+			players[victimIndex].health -= FPSArtillery.GetWeaponDamage(weaponType)*0.3f;
 		}else{
 			//normal damage
-			players[victimIndex].health -= artilleryScript.GetWeaponDamage(weaponType);
+			players[victimIndex].health -= FPSArtillery.GetWeaponDamage(weaponType);
 		}
 		if (players[victimIndex].health<=0f){
 			//player died
@@ -234,6 +234,13 @@ public class SophieNetworkScript : MonoBehaviour {
 			
 			players[shooterIndex].kills++;
 			if (gameSettings.killsIncreaseScore) players[shooterIndex].currentScore++;
+			
+			//Air-Rocket +1 Score Extra
+			if (!players[victimIndex].fpsEntity.grounded){
+				if (weaponType == "rocket"){
+					players[shooterIndex].currentScore++;
+				}
+			}
 		}
 		
 		//team stuff
