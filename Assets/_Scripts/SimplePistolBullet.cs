@@ -6,7 +6,8 @@ public class SimplePistolBullet : MonoBehaviour {
 	
 	private LineRenderer lr;
 	
-	private Color col = new Color(1,1,1,0.5f);
+	public Color col = new Color(1,1,1,0.5f);
+	public float width = 0.2f;
 	public Vector3 start;
 	public Vector3 end;
 	
@@ -17,7 +18,7 @@ public class SimplePistolBullet : MonoBehaviour {
 		
 		lr.SetPosition(0,start);
 		lr.SetPosition(1,end);
-		lr.SetWidth(0.2f,0.2f);
+		lr.SetWidth(width,width);
 		lr.SetColors(col,col);
 	}
 	

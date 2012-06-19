@@ -53,6 +53,7 @@ public class GrenadeScript : MonoBehaviour {
 				if (moveVector.magnitude > 2f)
 				{
 					audio.clip = sfx_bounce;
+					audio.pitch = Random.Range(1f,1.2f);
 					audio.Play();
 				}
 			}

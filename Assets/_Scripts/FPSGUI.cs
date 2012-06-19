@@ -187,19 +187,18 @@ public class FPSGUI : MonoBehaviour {
 				}
 				
 				
-				GUILayout.Label("~~~~~ SPLAT DEATH SALAD ~~~~~");
-				GUILayout.Label("(Version: 1)");
-				GUILayout.Label("");
+				GUILayout.Label(" === SPLAT DEATH SALAD Version 1 ===");
 				GUILayout.Label("Made by Sophie Houlden using Unity, for 7DFPS, June 2012");
-				GUILayout.Label("");
 				GUILayout.Label("Remember, low ping is good, high ping is bad!");
 				GUILayout.Label("Don't be surprised if you have poor performance or get kicked with high ping");
-				GUILayout.Label("");
 				GUILayout.Label("For best results, play across a LAN :)");
+				if (Application.isWebPlayer) GUILayout.Label("*** Visit the SDS homepage for standalone client downloads (win/mac) ***");
+				
 				GUILayout.Label("");
-				GUILayout.Label("");
-				GUILayout.Label("");
-				if (Application.isWebPlayer) GUILayout.Label("*** Visit the SDS homepage for stanalone client downloads (win/mac) ***");
+				GUILayout.Label(" === PEW Version 0.1 ===");
+				GUILayout.Label("You are playing a modded version of SplatDeathSalad.");
+				GUILayout.Label("For further information check the github-repository:");
+				GUILayout.Label("http://github.com/madpew/SplatDeathSalad/");
 				//GUILayout.Label("*** when it is finished though, I'll be releasing the source ***");
 				
 				GUI.EndGroup();

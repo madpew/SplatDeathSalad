@@ -49,8 +49,6 @@ public class FPSArtillery : MonoBehaviour {
 	public void Shoot(string weaponType, Vector3 origin, Vector3 direction, Vector3 end, NetworkViewID shooterID, NetworkViewID bulletID, double time, bool hit){
 		if (weaponType == "pistol" || weaponType == "machinegun" || weaponType == "rifle"){
 			
-			
-			
 			bool localFire = false;
 			Vector3 localstart = origin;
 			for (int i=0; i<theNetwork.players.Count; i++){
@@ -60,17 +58,43 @@ public class FPSArtillery : MonoBehaviour {
 				}
 			}
 			
-			GameObject newBullet = (GameObject)GameObject.Instantiate(pistolBulletPrefab);
-			newBullet.GetComponent<SimplePistolBullet>().start = origin;
-			if (localFire) newBullet.GetComponent<SimplePistolBullet>().start = localstart;
-			newBullet.GetComponent<SimplePistolBullet>().end = end;
-			
 			GameObject muzzleFlash = (GameObject)GameObject.Instantiate(muzzleFlashPrefab);
 			muzzleFlash.transform.position = origin;
 			if (localFire) muzzleFlash.transform.position = localstart - (Camera.main.transform.right * 0.2f);
 			
 			
-			if (weaponType == "rifle"){
+			if (weaponType == "machinegun"){
+				GameObject newBullet = (GameObject)GameObject.Instantiate(pistolBulletPrefab);
+				newBullet.GetComponent<SimplePistolBullet>().start = origin;
+				newBullet.GetComponent<SimplePistolBullet>().width = 0.025f;
+				newBullet.GetComponent<SimplePistolBullet>().col = gunTypes[2].gunMaterial.color;
+				if (localFire) newBullet.GetComponent<SimplePistolBullet>().start = localstart;
+				newBullet.GetComponent<SimplePistolBullet>().end = end;
+				
+			} else if (weaponType == "rifle"){
+				
+				GameObject newBullet = (GameObject)GameObject.Instantiate(pistolBulletPrefab);
+				newBullet.GetComponent<SimplePistolBullet>().start = origin;
+				newBullet.GetComponent<SimplePistolBullet>().width = 0.2f;
+				newBullet.GetComponent<SimplePistolBullet>().col = gunTypes[3].gunMaterial.color;
+				if (localFire) newBullet.GetComponent<SimplePistolBullet>().start = localstart;
+				newBullet.GetComponent<SimplePistolBullet>().end = end;
+				
+				GameObject newBullet2 = (GameObject)GameObject.Instantiate(swapperBulletPrefab);
+				newBullet2.GetComponent<SwapperBullet>().start = origin;
+				if (localFire && !hit) newBullet2.GetComponent<SwapperBullet>().start = localstart;
+				newBullet2.GetComponent<SwapperBullet>().end = end;
+				newBullet2.GetComponent<SwapperBullet>().hit = hit;
+				
+				
+			} else if (weaponType == "pistol") {
+				GameObject newBullet = (GameObject)GameObject.Instantiate(pistolBulletPrefab);
+				newBullet.GetComponent<SimplePistolBullet>().start = origin;
+				if (localFire) newBullet.GetComponent<SimplePistolBullet>().start = localstart;
+				newBullet.GetComponent<SimplePistolBullet>().end = end;
+				newBullet.GetComponent<SimplePistolBullet>().width = 0.1f;
+				newBullet.GetComponent<SimplePistolBullet>().col = gunTypes[0].gunMaterial.color;
+				
 				Vector3 dissipationStart = origin;
 				if (localFire) dissipationStart = localstart;
 				Vector3 dissipationDirection = (end-dissipationStart).normalized;
@@ -94,7 +118,6 @@ public class FPSArtillery : MonoBehaviour {
 			newGrenade.GetComponent<GrenadeScript>().viewID = bulletID;
 			newGrenade.GetComponent<GrenadeScript>().shooterID = shooterID;
 			newGrenade.GetComponent<GrenadeScript>().detonationTime = 3f;
-			
 			activeGrenades.Add(newGrenade.GetComponent<GrenadeScript>());
 		}
 		if (weaponType == "rocketlauncher"){
@@ -103,7 +126,6 @@ public class FPSArtillery : MonoBehaviour {
 			newRocket.transform.LookAt(origin + direction);
 			newRocket.GetComponent<RocketScript>().viewID = bulletID;
 			newRocket.GetComponent<RocketScript>().shooterID = shooterID;
-			
 			activeRockets.Add(newRocket.GetComponent<RocketScript>());
 		}
 		if (weaponType == "swapper"){

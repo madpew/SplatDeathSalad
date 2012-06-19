@@ -17,7 +17,7 @@ public class RifleDissipationScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		transform.position += moveVec * Time.deltaTime * 0.4f;
+		transform.position += moveVec * Time.deltaTime * 0.2f;
 		//moveVec.y += 8f * Time.deltaTime;
 		//moveVec.x -= (0-moveVec.x) * Time.deltaTime * -3f;
 		//moveVec.z -= (0-moveVec.z) * Time.deltaTime * -3f;

@@ -296,12 +296,12 @@ public class SophieNetworkScript : MonoBehaviour {
 	[RPC]
 	void ShowHit(string weaponType, Vector3 hitPos, NetworkViewID viewID){
 		int splatcount = 4;
-		if (weaponType=="pistol") splatcount = 4;
+		if (weaponType=="pistol") splatcount = 5;
 		if (weaponType=="grenade") splatcount = 15;
 		if (weaponType=="machinegun") splatcount = 2;
 		if (weaponType=="rifle") splatcount = 30;
 		if (weaponType=="suicide") splatcount = 30;
-		if (weaponType=="rocket") splatcount = 20;
+		if (weaponType=="rocket") splatcount = 30;
 		for (int i=0; i<splatcount; i++){
 			GameObject newSplat = (GameObject)GameObject.Instantiate(splatPrefab);
 			newSplat.transform.position = hitPos;
@@ -428,7 +428,10 @@ public class SophieNetworkScript : MonoBehaviour {
 		ChatMessage newMsg = new ChatMessage();
 		newMsg.sender = "";
 		newMsg.senderColor = Color.white;
-		newMsg.message = "!! " + shooterName + " killed " + victimName + " !!";
+		if (shooterName != victimName)
+			newMsg.message = "> " + shooterName + " [" + weaponType + "] killed " + victimName;
+		else
+			newMsg.message = "> " + shooterName + " died.";
 		messageScript.messages.Add(newMsg);
 		messageScript.textDisplayTime = Time.time+messageScript.textFadeTime;
 		
@@ -688,24 +691,24 @@ public class SophieNetworkScript : MonoBehaviour {
 				if (team == 1){
 					if (localPlayer.viewID == viewID){
 						newMsg.senderColor = Color.red;
-						newMsg.message = "<< you defected! >>";
+						newMsg.message = "> you defected!";
 					}else if (localPlayer.team == 1){
 						newMsg.senderColor = Color.red;
-						newMsg.message = "<< " + players[i].name + " defected to your team! >>";
+						newMsg.message = "> " + players[i].name + " joined your team.";
 					}else{
 						newMsg.senderColor = Color.cyan;
-						newMsg.message = "<< " + players[i].name + " turned their back on the team! >>";
+						newMsg.message = "> " + players[i].name + " left your team.";
 					}
 				}else{
 					if (localPlayer.viewID == viewID){
 						newMsg.senderColor = Color.cyan;
-						newMsg.message = "<< you defected! >>";
+						newMsg.message = "> you defected!";
 					}else if (localPlayer.team == 2){
 						newMsg.senderColor = Color.cyan;
-						newMsg.message = "<< " + players[i].name + " defected to your team! >>";
+						newMsg.message = "> " + players[i].name + " joined your team.";
 					}else{
 						newMsg.senderColor = Color.red;
-						newMsg.message = "<< " + players[i].name + " turned their back on the team! >>";
+						newMsg.message = "> " + players[i].name + " left your team.";
 					}
 				}
 				messageScript.messages.Add(newMsg);
@@ -777,7 +780,7 @@ public class SophieNetworkScript : MonoBehaviour {
 			ChatMessage newMsg = new ChatMessage();
 			newMsg.sender = "";
 			newMsg.senderColor = Color.grey;
-			newMsg.message = "<< " + name + " has joined >>";
+			newMsg.message = "> " + name + " joined the game.";
 			messageScript.messages.Add(newMsg);
 			messageScript.textDisplayTime = Time.time+messageScript.textFadeTime;
 		}
@@ -1205,7 +1208,7 @@ public class SophieNetworkScript : MonoBehaviour {
 		ChatMessage newMsg = new ChatMessage();
 		newMsg.sender = "";
 		newMsg.senderColor = Color.grey;
-		newMsg.message = "<< " + name + " left >>";
+		newMsg.message = "> " + name + " left the game.";
 		messageScript.messages.Add(newMsg);
 		messageScript.textDisplayTime = Time.time+messageScript.textFadeTime;
 	}
@@ -1249,7 +1252,7 @@ public class SophieNetworkScript : MonoBehaviour {
 		ChatMessage newMsg = new ChatMessage();
 		newMsg.sender = "";
 		newMsg.senderColor = Color.grey;
-		newMsg.message = "<< ! " + name + " was kicked ! >>";
+		newMsg.message = "> " + name + " was kicked.";
 		messageScript.messages.Add(newMsg);
 		messageScript.textDisplayTime = Time.time+messageScript.textFadeTime;
 		
@@ -1262,7 +1265,7 @@ public class SophieNetworkScript : MonoBehaviour {
 		ChatMessage newMsg = new ChatMessage();
 		newMsg.sender = "";
 		newMsg.senderColor = Color.white;
-		newMsg.message = "<< You have been disconnected from host >>";
+		newMsg.message = "> You have been disconnected from the server.";
 		messageScript.messages.Add(newMsg);
 		messageScript.textDisplayTime = Time.time+messageScript.textFadeTime;
 		
@@ -1311,7 +1314,7 @@ public class SophieNetworkScript : MonoBehaviour {
 		ChatMessage newMsg = new ChatMessage();
 		newMsg.sender = "";
 		newMsg.senderColor = Color.grey;
-		newMsg.message = "<< Host has left >>";
+		newMsg.message = "> The server shut down.";
 		messageScript.messages.Add(newMsg);
 		messageScript.textDisplayTime = Time.time+messageScript.textFadeTime;
 	}
