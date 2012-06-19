@@ -26,3 +26,7 @@ This is a modified version of SplatDeathSalad, a game by Sophie Houlden for the 
 * changed mainmenu and about-information
 * changed windowicon and title
 * modified chatmessages
+* added serveroption "offhand cooldown"
+* added serveroption "score airrockets"
+* added playeroption auto-pickup health
+* added basketball-watchdog to reset a lost ball

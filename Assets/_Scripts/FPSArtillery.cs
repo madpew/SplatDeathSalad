@@ -255,12 +255,12 @@ public class FPSArtillery : MonoBehaviour {
 				for (int k=0; k<theNetwork.players.Count; k++){
 					if (theNetwork.players[k].local){
 						float Dist = Vector3.Distance(theNetwork.players[k].fpsEntity.transform.position, activeRockets[i].transform.position);
-						float push = 8;
+						float push = 6;
 						if (Dist < GetDetonationRadius("rocket")){
 							
 							if (Dist > GetDetonationRadius("rocket")/2)
 							{
-								push = 5;
+								push = 4;
 							}
 							
 							if (theNetwork.players[k].fpsEntity.transform.position.y > activeRockets[i].transform.position.y){

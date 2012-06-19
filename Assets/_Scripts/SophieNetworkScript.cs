@@ -60,6 +60,7 @@ public class SophieNetworkScript : MonoBehaviour {
 	
 	public bool gunBobbing = true;
 	public bool autoPickup = false;
+	public bool autoPickupHealth = false;
 	public float gameVolume = 1f;
 	
 	// --------- Init stuff ---------
@@ -142,7 +143,6 @@ public class SophieNetworkScript : MonoBehaviour {
 						}
 						if (shooterIndex != -1 && players[i].team == players[shooterIndex].team) skip = true;
 					}
-					
 					
 					if (players[i].health>0f && !skip){
 						
@@ -236,9 +236,11 @@ public class SophieNetworkScript : MonoBehaviour {
 			if (gameSettings.killsIncreaseScore) players[shooterIndex].currentScore++;
 			
 			//Air-Rocket +1 Score Extra
-			if (!players[victimIndex].fpsEntity.grounded){
-				if (weaponType == "rocket"){
-					players[shooterIndex].currentScore++;
+			if (gameSettings.scoreAirrockets) {
+				if (!players[victimIndex].fpsEntity.grounded){
+					if (weaponType == "rocket"){
+						players[shooterIndex].currentScore++;
+					}
 				}
 			}
 		}
@@ -835,7 +837,8 @@ public class SophieNetworkScript : MonoBehaviour {
 		gameSettings.teamBased = modeSettings.teamBased;
 		gameSettings.allowFriendlyFire = modeSettings.allowFriendlyFire;
 		gameSettings.pitchBlack = modeSettings.pitchBlack;
-		
+		gameSettings.scoreAirrockets = modeSettings.scoreAirrockets;
+		gameSettings.offhandCooldown = modeSettings.offhandCooldown;
 		gameSettings.spawnGunA = modeSettings.spawnGunA;
 		gameSettings.spawnGunB = modeSettings.spawnGunB;
 		gameSettings.pickupSlot1 = modeSettings.pickupSlot1;

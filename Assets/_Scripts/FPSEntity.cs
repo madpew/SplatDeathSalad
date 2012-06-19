@@ -345,6 +345,7 @@ public class FPSEntity : MonoBehaviour {
 						bool pickup = false;
 						if (!theNetwork.autoPickup && Input.GetKeyDown("e")) pickup = true;
 						if (theNetwork.autoPickup) pickup = true;
+						if (theNetwork.autoPickupHealth && offeredPickup == "health") pickup = true;
 						
 						if (pickup){
 							//pickup weapon.
@@ -432,6 +433,8 @@ public class FPSEntity : MonoBehaviour {
 						
 						if (!landed && grounded){
 							PlaySound("land");
+							//hurt?
+							
 							sendRPCUpdate = true;
 						}
 					}else{
@@ -494,6 +497,11 @@ public class FPSEntity : MonoBehaviour {
 					if (handGun>=0 && handGunCooldown > 0f && handGunCooldown - Time.deltaTime <= 0f && artillery.gunTypes[handGun].fireCooldown>=0.5f) PlaySound("reload");
 					handGunCooldown -= Time.deltaTime;
 					if (handGunCooldown<0f) handGunCooldown = 0f;
+					
+					if (theNetwork.gameSettings.offhandCooldown) {
+						holsterGunCooldown -= Time.deltaTime;
+						if (holsterGunCooldown < 0f) holsterGunCooldown = 0f;
+					}
 					
 					
 					theGUI.swapperLocked = false;

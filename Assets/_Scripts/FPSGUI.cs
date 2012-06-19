@@ -80,6 +80,7 @@ public class FPSGUI : MonoBehaviour {
 		messageScript.textFadeTime = PlayerPrefs.GetFloat("textFadeTime", 10f);
 		theNetwork.gunBobbing = PlayerPrefs.GetInt("GunBobbing",1)==1;
 		theNetwork.autoPickup = PlayerPrefs.GetInt("autoPickup",0)==1;
+		theNetwork.autoPickupHealth = PlayerPrefs.GetInt("autoPickupHealth",0)==1;
 		theNetwork.gameVolume = PlayerPrefs.GetFloat("GameVolume", 1f);
 	}
 	
@@ -395,13 +396,20 @@ public class FPSGUI : MonoBehaviour {
 				//pickup stuff
 				Color gcol = GUI.color;
 				if (offeredPickup != "" && !theNetwork.autoPickup){
-					GUI.color = Color.black;
-					GUI.Label(new Rect((Screen.width/2)-51,(Screen.height/2)+100,100,60),"PRESS 'E' TO PICK UP " + offeredPickup.ToUpper());
-					GUI.Label(new Rect((Screen.width/2)-49,(Screen.height/2)+100,100,60),"PRESS 'E' TO PICK UP " + offeredPickup.ToUpper());
-					GUI.Label(new Rect((Screen.width/2)-50,(Screen.height/2)+101,100,60),"PRESS 'E' TO PICK UP " + offeredPickup.ToUpper());
-					GUI.Label(new Rect((Screen.width/2)-50,(Screen.height/2)+99,100,60),"PRESS 'E' TO PICK UP " + offeredPickup.ToUpper());
-					GUI.color = gcol;
-					GUI.Label(new Rect((Screen.width/2)-50,(Screen.height/2)+100,100,60),"PRESS 'E' TO PICK UP " + offeredPickup.ToUpper());
+					
+					if (offeredPickup == "health" && theNetwork.autoPickupHealth)
+					{
+					}
+					else
+					{
+						GUI.color = Color.black;
+						GUI.Label(new Rect((Screen.width/2)-51,(Screen.height/2)+100,100,60),"PRESS 'E' TO PICK UP " + offeredPickup.ToUpper());
+						GUI.Label(new Rect((Screen.width/2)-49,(Screen.height/2)+100,100,60),"PRESS 'E' TO PICK UP " + offeredPickup.ToUpper());
+						GUI.Label(new Rect((Screen.width/2)-50,(Screen.height/2)+101,100,60),"PRESS 'E' TO PICK UP " + offeredPickup.ToUpper());
+						GUI.Label(new Rect((Screen.width/2)-50,(Screen.height/2)+99,100,60),"PRESS 'E' TO PICK UP " + offeredPickup.ToUpper());
+						GUI.color = gcol;
+						GUI.Label(new Rect((Screen.width/2)-50,(Screen.height/2)+100,100,60),"PRESS 'E' TO PICK UP " + offeredPickup.ToUpper());
+					}
 				}
 				
 				//spectate
@@ -777,6 +785,7 @@ public class FPSGUI : MonoBehaviour {
 		
 		theNetwork.gunBobbing = GUILayout.Toggle(theNetwork.gunBobbing, "Gun Bobbing");
 		theNetwork.autoPickup = GUILayout.Toggle(theNetwork.autoPickup, "Auto-Pickup");
+		theNetwork.autoPickupHealth = GUILayout.Toggle(theNetwork.autoPickupHealth, "Auto-Pickup Health");
 		
 		GUILayout.BeginHorizontal();
 		fsWidth = MakeInt(GUILayout.TextField(fsWidth.ToString()));
@@ -805,6 +814,13 @@ public class FPSGUI : MonoBehaviour {
 		}else{
 			PlayerPrefs.SetInt("autoPickup", 0);
 		}
+		
+		if (theNetwork.autoPickupHealth){
+			PlayerPrefs.SetInt("autoPickupHealth", 1);
+		}else{
+			PlayerPrefs.SetInt("autoPickupHealth", 0);
+		}
+		
 		PlayerPrefs.SetFloat("GameVolume", theNetwork.gameVolume);
 		
 		GUILayout.EndArea();
@@ -938,6 +954,8 @@ public class FPSGUI : MonoBehaviour {
 				modes[0].winScore = modes[gameModeInt].winScore;
 				modes[0].spawnGunA = modes[gameModeInt].spawnGunA;
 				modes[0].spawnGunB = modes[gameModeInt].spawnGunB;
+				modes[0].offhandCooldown = modes[gameModeInt].offhandCooldown;
+				modes[0].scoreAirrockets = modes[gameModeInt].scoreAirrockets;
 				modes[0].pickupSlot1 = modes[gameModeInt].pickupSlot1;
 				modes[0].pickupSlot2 = modes[gameModeInt].pickupSlot2;
 				modes[0].pickupSlot3 = modes[gameModeInt].pickupSlot3;
@@ -960,6 +978,7 @@ public class FPSGUI : MonoBehaviour {
 			
 			modes[gameModeInt].killsIncreaseScore = GUILayout.Toggle(modes[gameModeInt].killsIncreaseScore, "Kills Increase score");
 			modes[gameModeInt].deathsSubtractScore = GUILayout.Toggle(modes[gameModeInt].deathsSubtractScore, "Deaths Reduce score");
+			modes[gameModeInt].scoreAirrockets = GUILayout.Toggle(modes[gameModeInt].scoreAirrockets, "Air-Rocket Bonus");
 			
 			GUILayout.BeginHorizontal();
 			GUILayout.Label("Respawn Time: ");
@@ -1020,6 +1039,8 @@ public class FPSGUI : MonoBehaviour {
 			if (GUILayout.Button(">")) modes[gameModeInt].spawnGunB++;
 			if (modes[gameModeInt].spawnGunB>=artillery.gunTypes.Length) modes[gameModeInt].spawnGunB = -2;
 			GUILayout.EndHorizontal();
+			
+			modes[gameModeInt].offhandCooldown = GUILayout.Toggle(modes[gameModeInt].offhandCooldown, "Offhand Cooldown");
 			
 			GUILayout.Label(" --- ");
 			//gun slot 1

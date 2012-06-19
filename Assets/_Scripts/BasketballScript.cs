@@ -7,6 +7,7 @@ public class BasketballScript : MonoBehaviour {
 	public NetworkViewID throwerID;
 	
 	public bool held = false;
+	public float watchdog = 0f;
 	
 	public Vector3 moveVector = Vector3.zero;
 	
@@ -66,7 +67,19 @@ public class BasketballScript : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		if (held) watchdog = 0f;
+		
 		if (!held){
+			watchdog += Time.deltaTime;
+			
+			if (watchdog > 20f)
+			{
+				watchdog = 0f;
+				ResetBall();
+				if (theNetwork.isServer){
+					theNetwork.networkView.RPC("SendChatMessage",RPCMode.All, "> ", "BALL RESET", theNetwork.ColToVec(new Color(1f,0.5f,0f,1f)));
+				}
+			}
 			transform.position += moveVector * Time.deltaTime;
 				
 			moveVector.y -= Time.deltaTime * 10f;
@@ -78,25 +91,27 @@ public class BasketballScript : MonoBehaviour {
 				
 				if (hitInfo.collider.gameObject.layer == 11){
 					//blue scores
+					ResetBall();
 					if (theNetwork.isServer){
-						ResetBall();
+						
 						theNetwork.team2Score++;
 						theNetwork.networkView.RPC("AnnounceTeamScores", RPCMode.Others, theNetwork.team1Score, theNetwork.team2Score);
-						theNetwork.networkView.RPC("SendChatMessage",RPCMode.All, "BASKETBALL: ", "TEAM BLUE SCORES!", theNetwork.ColToVec(new Color(1f,0.5f,0f,1f)));
+						theNetwork.networkView.RPC("SendChatMessage",RPCMode.All, "> ", "TEAM BLUE SCORES", theNetwork.ColToVec(new Color(1f,0.5f,0f,1f)));
 					}
 				}else if (hitInfo.collider.gameObject.layer == 12){
 					//red scores
+					ResetBall();
 					if (theNetwork.isServer){
-						ResetBall();
 						theNetwork.team1Score++;
 						theNetwork.networkView.RPC("AnnounceTeamScores", RPCMode.Others, theNetwork.team1Score, theNetwork.team2Score);
-						theNetwork.networkView.RPC("SendChatMessage",RPCMode.All, "BASKETBALL: ", "TEAM RED SCORES!", theNetwork.ColToVec(new Color(1f,0.5f,0f,1f)));
+						theNetwork.networkView.RPC("SendChatMessage",RPCMode.All, "> ", "TEAM RED SCORES", theNetwork.ColToVec(new Color(1f,0.5f,0f,1f)));
+						
 					}
 				}else if (hitInfo.collider.gameObject.layer == 10){
 					//LAVA! :D
+					ResetBall();
 					if (theNetwork.isServer){
-						ResetBall();
-						theNetwork.networkView.RPC("SendChatMessage",RPCMode.All, "BASKETBALL: ", "OH NO, I FELL IN THE LAVA!", theNetwork.ColToVec(new Color(1f,0.5f,0f,1f)));
+						theNetwork.networkView.RPC("SendChatMessage",RPCMode.All, "> ", "BALL LOST", theNetwork.ColToVec(new Color(1f,0.5f,0f,1f)));
 					}
 				}else{
 				
@@ -104,7 +119,6 @@ public class BasketballScript : MonoBehaviour {
 					moveVector = Vector3.Reflect(moveVector, hitInfo.normal);
 					moveVector *= 0.7f;
 						
-					
 					//Debug.Log(moveVector.magnitude);
 					if (moveVector.magnitude>2f){
 						audio.clip = sfx_bounce;
@@ -128,8 +142,6 @@ public class BasketballScript : MonoBehaviour {
 				}
 				
 			}
-		}else{
-			//ball held
 		}
 		
 	}
