@@ -42,7 +42,7 @@ public class SophieNetworkScript : MonoBehaviour {
 	public int team1Score = 0;
 	public int team2Score = 0;
 	
-	public bool gameOver = false;
+	public static bool gameOver = false;
 	
 	public GameObject basketballPrefab;
 	private GameObject basketball;

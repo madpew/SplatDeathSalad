@@ -11,7 +11,6 @@ public class FPSEntity : MonoBehaviour {
 	
 	public GameObject weaponSoundObj;
 	
-	
 	public GameObject camHolder;
 	private Vector3 camAngle;
 	private bool crouched = false;

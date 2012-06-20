@@ -14,7 +14,6 @@ public class BasketballScript : MonoBehaviour {
 	private Vector3 lastPos;
 	
 	public AudioClip sfx_bounce;
-	
 	private SophieNetworkScript theNetwork;
 	
 	private float throwTime = 0f;
@@ -72,7 +71,7 @@ public class BasketballScript : MonoBehaviour {
 		if (!held){
 			watchdog += Time.deltaTime;
 			
-			if (watchdog > 20f)
+			if (watchdog > 15f)
 			{
 				watchdog = 0f;
 				ResetBall();
@@ -92,24 +91,31 @@ public class BasketballScript : MonoBehaviour {
 				if (hitInfo.collider.gameObject.layer == 11){
 					//blue scores
 					ResetBall();
+					
 					if (theNetwork.isServer){
-						
-						theNetwork.team2Score++;
-						theNetwork.networkView.RPC("AnnounceTeamScores", RPCMode.Others, theNetwork.team1Score, theNetwork.team2Score);
-						theNetwork.networkView.RPC("SendChatMessage",RPCMode.All, "> ", "TEAM BLUE SCORES", theNetwork.ColToVec(new Color(1f,0.5f,0f,1f)));
+						if (!SophieNetworkScript.gameOver)
+						{
+							theNetwork.team2Score++;
+							theNetwork.networkView.RPC("AnnounceTeamScores", RPCMode.Others, theNetwork.team1Score, theNetwork.team2Score);
+							theNetwork.networkView.RPC("SendChatMessage",RPCMode.All, "> ", "TEAM BLUE SCORES", theNetwork.ColToVec(new Color(1f,0.5f,0f,1f)));
+						}
 					}
 				}else if (hitInfo.collider.gameObject.layer == 12){
 					//red scores
 					ResetBall();
+					
 					if (theNetwork.isServer){
-						theNetwork.team1Score++;
-						theNetwork.networkView.RPC("AnnounceTeamScores", RPCMode.Others, theNetwork.team1Score, theNetwork.team2Score);
-						theNetwork.networkView.RPC("SendChatMessage",RPCMode.All, "> ", "TEAM RED SCORES", theNetwork.ColToVec(new Color(1f,0.5f,0f,1f)));
-						
+						if (!SophieNetworkScript.gameOver)
+						{
+							theNetwork.team1Score++;
+							theNetwork.networkView.RPC("AnnounceTeamScores", RPCMode.Others, theNetwork.team1Score, theNetwork.team2Score);
+							theNetwork.networkView.RPC("SendChatMessage",RPCMode.All, "> ", "TEAM RED SCORES", theNetwork.ColToVec(new Color(1f,0.5f,0f,1f)));
+						}
 					}
 				}else if (hitInfo.collider.gameObject.layer == 10){
 					//LAVA! :D
 					ResetBall();
+					
 					if (theNetwork.isServer){
 						theNetwork.networkView.RPC("SendChatMessage",RPCMode.All, "> ", "BALL LOST", theNetwork.ColToVec(new Color(1f,0.5f,0f,1f)));
 					}

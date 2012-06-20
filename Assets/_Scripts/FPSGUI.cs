@@ -357,7 +357,7 @@ public class FPSGUI : MonoBehaviour {
 			}else{
 				//connected & cursor locked
 				
-				if (Input.GetKey("tab") || theNetwork.gameOver){
+				if (Input.GetKey("tab") || SophieNetworkScript.gameOver){
 					DrawBGBox(false);
 					Scoreboard();
 				}else{
@@ -460,7 +460,7 @@ public class FPSGUI : MonoBehaviour {
 			Color gcolB = GUI.color;
 			
 			//time
-			if (!theNetwork.gameOver){
+			if (!SophieNetworkScript.gameOver){
 				if (theNetwork.gameSettings.gameTime>0f){
 					//game has a time limit, let's display the time
 					
@@ -545,7 +545,7 @@ public class FPSGUI : MonoBehaviour {
 		if (!theNetwork.gameSettings.teamBased){
 			
 			int highestScrore=-9999;
-			if (theNetwork.gameOver){
+			if (SophieNetworkScript.gameOver){
 				for (int i=0; i<theNetwork.players.Count; i++){
 					if (theNetwork.players[i].currentScore > highestScrore){
 						highestScrore = theNetwork.players[i].currentScore;
@@ -553,7 +553,7 @@ public class FPSGUI : MonoBehaviour {
 				}
 			}
 			int mostLives = 0;
-			if (theNetwork.gameOver){
+			if (SophieNetworkScript.gameOver){
 				for (int i=0; i<theNetwork.players.Count; i++){
 					if (theNetwork.players[i].lives > mostLives){
 						mostLives = theNetwork.players[i].lives;
@@ -584,10 +584,10 @@ public class FPSGUI : MonoBehaviour {
 		if (theNetwork.gameSettings.teamBased){
 			
 			GUI.color = new Color(1f, 0f, 0f, 1f);
-			if (theNetwork.gameOver && theNetwork.team1Score>theNetwork.team2Score) GUI.color = new Color(UnityEngine.Random.Range(0.5f,1f), UnityEngine.Random.Range(0.5f,1f), UnityEngine.Random.Range(0.5f,1f), 1f);
+			if (SophieNetworkScript.gameOver && theNetwork.team1Score>theNetwork.team2Score) GUI.color = new Color(UnityEngine.Random.Range(0.5f,1f), UnityEngine.Random.Range(0.5f,1f), UnityEngine.Random.Range(0.5f,1f), 1f);
 			GUI.Label(new Rect(100, 20,150,20), "Team 1 Score: " + theNetwork.team1Score.ToString());
 			GUI.color = new Color(0f, 1f, 1f, 1f);
-			if (theNetwork.gameOver && theNetwork.team2Score>theNetwork.team1Score) GUI.color = new Color(UnityEngine.Random.Range(0.5f,1f), UnityEngine.Random.Range(0.5f,1f), UnityEngine.Random.Range(0.5f,1f), 1f);
+			if (SophieNetworkScript.gameOver && theNetwork.team2Score>theNetwork.team1Score) GUI.color = new Color(UnityEngine.Random.Range(0.5f,1f), UnityEngine.Random.Range(0.5f,1f), UnityEngine.Random.Range(0.5f,1f), 1f);
 			GUI.Label(new Rect(300, 20,150,20), "Team 2 Score: " + theNetwork.team2Score.ToString());
 			
 			GUI.color = guiCol;
@@ -605,7 +605,7 @@ public class FPSGUI : MonoBehaviour {
 				if (theNetwork.players[i].team == 1){
 					
 					if (theNetwork.players[i].local) GUI.color = new Color(1, 0.3f, 0.3f, 1f);
-					if (theNetwork.gameOver && theNetwork.team1Score>theNetwork.team2Score) GUI.color = new Color(UnityEngine.Random.Range(0.5f,1f), UnityEngine.Random.Range(0.5f,1f), UnityEngine.Random.Range(0.5f,1f), 1f);
+					if (SophieNetworkScript.gameOver && theNetwork.team1Score>theNetwork.team2Score) GUI.color = new Color(UnityEngine.Random.Range(0.5f,1f), UnityEngine.Random.Range(0.5f,1f), UnityEngine.Random.Range(0.5f,1f), 1f);
 					
 					GUI.Label(new Rect(10,(yOffset*20) + 60,150,20), theNetwork.players[i].name);
 					GUI.Label(new Rect(160,(yOffset*20) + 60,50,20), theNetwork.players[i].kills.ToString());
@@ -627,7 +627,7 @@ public class FPSGUI : MonoBehaviour {
 				if (theNetwork.players[i].team == 2){
 					
 					if (theNetwork.players[i].local) GUI.color = new Color(0.3f, 1, 1, 1f);
-					if (theNetwork.gameOver && theNetwork.team2Score>theNetwork.team1Score) GUI.color = new Color(UnityEngine.Random.Range(0.5f,1f), UnityEngine.Random.Range(0.5f,1f), UnityEngine.Random.Range(0.5f,1f), 1f);
+					if (SophieNetworkScript.gameOver && theNetwork.team2Score>theNetwork.team1Score) GUI.color = new Color(UnityEngine.Random.Range(0.5f,1f), UnityEngine.Random.Range(0.5f,1f), UnityEngine.Random.Range(0.5f,1f), 1f);
 				
 					GUI.Label(new Rect(10,(yOffset*20) + 60,150,20), theNetwork.players[i].name);
 					GUI.Label(new Rect(160,(yOffset*20) + 60,50,20), theNetwork.players[i].kills.ToString());
@@ -640,7 +640,7 @@ public class FPSGUI : MonoBehaviour {
 			
 			GUI.color = Color.black;
 			yOffset++;
-			GUI.Label(new Rect(10,(yOffset*20) + 60,300,20), ">> TO CHANGE TEAMS, PRESS 'T' <<");
+			if (!SophieNetworkScript.gameOver) GUI.Label(new Rect(10,(yOffset*20) + 60,300,20), ">> TO CHANGE TEAMS, PRESS 'T' <<");
 		}
 		
 		GUI.color = guiCol;
@@ -676,17 +676,17 @@ public class FPSGUI : MonoBehaviour {
 		theNetwork.localPlayer.name = FormatName(theNetwork.localPlayer.name);
 		GUILayout.EndHorizontal();
 			
-		GUILayout.Label("Colour A:");
+		GUILayout.Label("Body Color:");
 		theNetwork.localPlayer.colA.r = GUILayout.HorizontalSlider(theNetwork.localPlayer.colA.r,0f,1f);
 		theNetwork.localPlayer.colA.g = GUILayout.HorizontalSlider(theNetwork.localPlayer.colA.g,0f,1f);
 		theNetwork.localPlayer.colA.b = GUILayout.HorizontalSlider(theNetwork.localPlayer.colA.b,0f,1f);
 				
-		GUILayout.Label("Colour B:");
+		GUILayout.Label("Scarf Color:");
 		theNetwork.localPlayer.colB.r = GUILayout.HorizontalSlider(theNetwork.localPlayer.colB.r,0f,1f);
 		theNetwork.localPlayer.colB.g = GUILayout.HorizontalSlider(theNetwork.localPlayer.colB.g,0f,1f);
 		theNetwork.localPlayer.colB.b = GUILayout.HorizontalSlider(theNetwork.localPlayer.colB.b,0f,1f);
 		
-		GUILayout.Label("Colour C:");
+		GUILayout.Label("Scarf Stripe Color:");
 		theNetwork.localPlayer.colC.r = GUILayout.HorizontalSlider(theNetwork.localPlayer.colC.r,0f,1f);
 		theNetwork.localPlayer.colC.g = GUILayout.HorizontalSlider(theNetwork.localPlayer.colC.g,0f,1f);
 		theNetwork.localPlayer.colC.b = GUILayout.HorizontalSlider(theNetwork.localPlayer.colC.b,0f,1f);
