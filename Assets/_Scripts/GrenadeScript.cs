@@ -40,7 +40,7 @@ public class GrenadeScript : MonoBehaviour {
 		if (active){
 			transform.position += moveVector * Time.deltaTime;
 			
-			moveVector.y -= Time.deltaTime * 23f;
+			moveVector.y -= Time.deltaTime * 18f;
 			
 			RaycastHit hitInfo = new RaycastHit();
 			int layerMask = (1<<0);
@@ -48,12 +48,13 @@ public class GrenadeScript : MonoBehaviour {
 			if (Physics.SphereCast(lastPos, 0.15f, rayDirection, out hitInfo, Vector3.Distance(transform.position, lastPos), layerMask)){
 				transform.position = hitInfo.point + (hitInfo.normal*0.15f);
 				moveVector = Vector3.Reflect(moveVector, hitInfo.normal);
-				moveVector *= 0.6f;
+				moveVector *= 0.5f;
 				
 				if (moveVector.magnitude > 2f)
 				{
 					audio.clip = sfx_bounce;
-					audio.pitch = Random.Range(1f,1.2f);
+					audio.volume = 2f;
+					audio.pitch = Random.Range(0.95f,1.05f);
 					audio.Play();
 				}
 			}

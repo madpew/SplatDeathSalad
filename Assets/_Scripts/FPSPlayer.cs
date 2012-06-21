@@ -26,6 +26,12 @@ public class FPSPlayer {
 	public int currentScore;
 	
 	public Ping ping;
+	public int pingtime;
+	public string sound;
+	public int riflehits = 0;
+	
+	public string currentAward = "";
+	public float currentAwardTime = 0f;
 	
 	public float health = 100f;
 	
@@ -36,6 +42,9 @@ public class FPSPlayer {
 	public int lives = 0;
 	
 	public bool hasBall = false;
+	
+
+	
 	
 	public void InstantiateFPSEntity(GameObject fpsEntityPrefab){
 		

@@ -10,6 +10,8 @@ public class FPSEntity : MonoBehaviour {
 	private CharacterController cc;
 	
 	public GameObject weaponSoundObj;
+	public GameObject announcerSoundObj;
+	public GameObject stepsSoundObj;
 	
 	public GameObject camHolder;
 	private Vector3 camAngle;
@@ -223,14 +225,6 @@ public class FPSEntity : MonoBehaviour {
 			SetModelVisibility(false);
 			transform.position = -Vector3.up * 99f;
 		}
-		
-		
-		
-		
-		
-		
-		
-		
 	}
 	
 	public GameObject ourKiller;
@@ -245,47 +239,149 @@ public class FPSEntity : MonoBehaviour {
 	public AudioClip sfx_reload;
 	public AudioClip sfx_swapped;
 	public AudioClip sfx_catchBall;
+	public AudioClip sfx_throwBall;
+	public AudioClip sfx_fall;
+	public AudioClip sfx_DmgMid;
+	public AudioClip sfx_DmgHigh;
+	
+	public AudioClip sfx_announce_airrocket;
+	public AudioClip sfx_announce_score_red;
+	public AudioClip sfx_announce_score_blue;
+	public AudioClip sfx_announce_ohno;
+	public AudioClip sfx_announce_impressive;
+	public AudioClip sfx_announce_outstanding;
+	public AudioClip sfx_announce_buzzer;
+	public AudioClip sfx_announce_win_blue;
+	public AudioClip sfx_announce_win_red;
+	public AudioClip sfx_announce_win_tied;
+	
+	public bool AnnouncedScore = false;
+	
+	public void Announce(string sound)
+	{
+		if (!theNetwork.announcer) return;
+		
+		if (sound == "airrocket"){
+			announcerSoundObj.audio.clip = sfx_announce_airrocket;
+			announcerSoundObj.audio.volume = 1f;
+			announcerSoundObj.audio.Play();
+		}
+		if (sound == "impressive"){
+			announcerSoundObj.audio.clip = sfx_announce_impressive;
+			announcerSoundObj.audio.volume = 1f;
+			announcerSoundObj.audio.Play();
+		}
+		if (sound == "outstanding"){
+			announcerSoundObj.audio.clip = sfx_announce_outstanding;
+			announcerSoundObj.audio.volume = 1f;
+			announcerSoundObj.audio.Play();
+		}
+		
+		if (sound == "scorered"){
+			announcerSoundObj.audio.clip = sfx_announce_score_red;
+			announcerSoundObj.audio.volume = 1f;
+			announcerSoundObj.audio.Play();
+		}
+		if (sound == "scoreblue"){
+			announcerSoundObj.audio.clip = sfx_announce_score_blue;
+			announcerSoundObj.audio.volume = 1f;
+			announcerSoundObj.audio.Play();
+		}
+		if (sound == "balllost"){
+			announcerSoundObj.audio.clip = sfx_announce_ohno;
+			announcerSoundObj.audio.volume = 1f;
+			announcerSoundObj.audio.Play();
+		}
+		
+		if (sound == "winred"){
+			announcerSoundObj.audio.clip = sfx_announce_win_red;
+			announcerSoundObj.audio.volume = 1f;
+			announcerSoundObj.audio.Play();
+		}
+		if (sound == "winblue"){
+			announcerSoundObj.audio.clip = sfx_announce_win_blue;
+			announcerSoundObj.audio.volume = 1f;
+			announcerSoundObj.audio.Play();
+		}
+		if (sound == "wintie"){
+			announcerSoundObj.audio.clip = sfx_announce_win_tied;
+			announcerSoundObj.audio.volume = 1f;
+			announcerSoundObj.audio.Play();
+		}
+		if (sound == "winbuzz"){
+			announcerSoundObj.audio.clip = sfx_announce_buzzer;
+			announcerSoundObj.audio.volume = 1f;
+			announcerSoundObj.audio.Play();
+		}
+	}
 	
 	public void PlaySound(string sound){
 		if (sound == "takeHit"){
 			audio.clip = sfx_takeDamage;
+			audio.volume = 1f;
 			audio.Play();
+			thisPlayer.sound = sound;
+		}
+		if (sound == "takeHitMid"){
+			audio.clip = sfx_DmgMid;
+			audio.volume = 1f;
+			audio.Play();
+			thisPlayer.sound = sound;
+		}
+		if (sound == "takeHitHigh"){
+			audio.clip = sfx_DmgHigh;
+			audio.volume = 1f;
+			audio.Play();
+			thisPlayer.sound = sound;
 		}
 		if (sound == "jump"){
 			audio.clip = sfx_jump;
-			audio.volume = 1f;
-			audio.volume = 0.2f;
+			audio.volume = 0.5f;
 			audio.Play();
+			thisPlayer.sound = sound;
 		}
 		if (sound == "land"){
 			audio.clip = sfx_land;
-			audio.volume = 0.5f;
+			audio.volume = 0.4f;
 			audio.Play();
+			thisPlayer.sound = sound;
+		}
+		if (sound == "fall"){
+			audio.clip = sfx_fall;
+			audio.volume = 0.6f;
+			audio.Play();
+			thisPlayer.sound = sound;
 		}
 		if (sound == "die"){
 			audio.clip = sfx_die;
 			audio.volume = 1f;
 			audio.Play();
+			thisPlayer.sound = sound;
 		}
 		if (sound == "weaponChange"){
-			audio.clip = sfx_weaponChange;
-			audio.volume = 0.2f;
-			audio.Play();
+			weaponSoundObj.audio.clip = sfx_weaponChange;
+			weaponSoundObj.audio.volume = 0.2f;
+			weaponSoundObj.audio.Play();
 		}
 		if (sound == "reload"){
-			audio.clip = sfx_reload;
-			audio.volume = 0.2f;
-			audio.Play();
+			weaponSoundObj.audio.clip = sfx_reload;
+			weaponSoundObj.audio.volume = 0.1f;
+			weaponSoundObj.audio.Play();
 		}
 		if (sound == "Swapped"){
 			audio.clip = sfx_swapped;
-			audio.volume = 0.4f;
+			audio.volume = 0.6f;
 			audio.Play();
 		}
 		if (sound == "catchBall"){
-			audio.clip = sfx_catchBall;
-			audio.volume = 0.4f;
-			audio.Play();
+			weaponSoundObj.audio.clip = sfx_catchBall;
+			weaponSoundObj.audio.volume = 0.4f;
+			weaponSoundObj.audio.Play();
+		}
+		if (sound == "throwBall"){
+			weaponSoundObj.audio.clip = sfx_throwBall;
+			weaponSoundObj.audio.volume = 0.4f;
+			weaponSoundObj.audio.Play();
 		}
 	}
 	
@@ -296,6 +392,7 @@ public class FPSEntity : MonoBehaviour {
 		
 		//volume
 		AudioListener.volume = theNetwork.gameVolume;
+		thisPlayer.sound = "";
 		
 		theGUI.spectateMode = spectateMode;
 		theGUI.spectateInt = spectateInt;
@@ -383,10 +480,11 @@ public class FPSEntity : MonoBehaviour {
 				theGUI.gunA = handGun;
 				theGUI.gunACooldown = handGunCooldown;
 				theGUI.gunB = holsterGun;
+				bool PlaySteps = false;
 				
 				if (thisPlayer.health>0f){
 					
-					
+					PlaySteps = true;
 					
 					if (Camera.main.transform.parent == null) SetModelVisibility(false);
 					
@@ -431,9 +529,24 @@ public class FPSEntity : MonoBehaviour {
 						if (!grounded) cc.Move(Vector3.up * 0.2f);
 						
 						if (!landed && grounded){
-							PlaySound("land");
-							//hurt?
-							
+							if (yMove > -5){
+								PlaySound("land");
+							}else{
+								
+								PlaySound("fall");
+								
+								if (theNetwork.gameSettings.fallingDamage)
+								{
+									if (yMove <= -30)
+									{
+										theNetwork.RegisterHit("bones", thisPlayer.viewID, thisPlayer.viewID, thisPlayer.fpsEntity.transform.position);
+									}
+									else
+									{
+										theNetwork.RegisterHit("legs", thisPlayer.viewID, thisPlayer.viewID, thisPlayer.fpsEntity.transform.position);
+									}
+								}
+							}
 							sendRPCUpdate = true;
 						}
 					}else{
@@ -442,12 +555,16 @@ public class FPSEntity : MonoBehaviour {
 					
 					if (grounded){
 						yMove = 0f;
-						if (Input.GetKeyDown("space")){
-							yMove = 4f;
+						
+						if (inputVector.magnitude < 0.1f) PlaySteps = false;
+						
+						if (Input.GetKey("space")){
+							yMove += 3.5f;
 							PlaySound("jump");
 							sendRPCUpdate = true;
 						}
 					}else{
+						PlaySteps = false;
 						yMove -= Time.deltaTime * 10f;
 					}
 					cc.Move(Vector3.up * yMove * Time.deltaTime * 5f);
@@ -473,7 +590,7 @@ public class FPSEntity : MonoBehaviour {
 					if (camAngle != lastCamAngle && Time.time>rpcCamtime) sendRPCUpdate = true;
 					if (moveVec != lastMoveVector) sendRPCUpdate = true;
 					if (crouched != lastCrouch) sendRPCUpdate = true;
-					//if (yMove != lastYmove) sendRPCUpdate = true;
+					if (yMove != lastYmove) sendRPCUpdate = true;	//recomment me out ?
 					if (thisPlayer.health != lastHealth) sendRPCUpdate = true;
 					if (theNetwork.broadcastPos){
 						theNetwork.broadcastPos = false;
@@ -487,7 +604,8 @@ public class FPSEntity : MonoBehaviour {
 					lastHealth = thisPlayer.health;
 					
 					if (sendRPCUpdate){
-						theNetwork.SendPlayer(thisPlayer.viewID, transform.position, camAngle, crouched, moveVec, yMove, handGun, holsterGun);
+						theNetwork.SendPlayer(thisPlayer.viewID, transform.position, camAngle, crouched, moveVec, yMove, handGun, holsterGun, thisPlayer.sound);
+						
 						sendRPCUpdate = false;
 						
 						rpcCamtime = Time.time;// + 0.02f;
@@ -517,12 +635,18 @@ public class FPSEntity : MonoBehaviour {
 								int swapCheckLayer = 1<<0;
 								float swapCheckLength = Vector3.Distance(theNetwork.players[i].fpsEntity.transform.position, Camera.main.transform.position);
 								if (!Physics.Raycast(swapCheckRay, out swapCheckHit, swapCheckLength, swapCheckLayer)){
-									validSwapTargets.Add(i);
-									theGUI.swapperLocked = true;
+									if (theNetwork.players[i].health > 0)
+									{
+										if (!theNetwork.gameSettings.teamBased || thisPlayer.team != theNetwork.players[i].team)
+										{
+											validSwapTargets.Add(i);
+											theGUI.swapperLocked = true;
+										}
+									}
 								}
 							}
 						}
-						int nearestScreenspacePlayer = 0;
+						int nearestScreenspacePlayer = -1;
 						float nearestDistance = 9999f;
 						for (int i=0; i<validSwapTargets.Count; i++){
 							Vector3 thisPos = Camera.main.WorldToScreenPoint(theNetwork.players[validSwapTargets[i]].fpsEntity.transform.position);
@@ -530,7 +654,7 @@ public class FPSEntity : MonoBehaviour {
 								nearestScreenspacePlayer = validSwapTargets[i];
 							}
 						}
-						if (theGUI.swapperLocked){
+						if (theGUI.swapperLocked && nearestScreenspacePlayer != -1){
 							//move target to locked on player
 							Vector3 screenPos = Camera.main.WorldToScreenPoint(theNetwork.players[nearestScreenspacePlayer].fpsEntity.transform.position);
 							swapperLock -= (swapperLock-screenPos) * Time.deltaTime * 10f;
@@ -589,7 +713,7 @@ public class FPSEntity : MonoBehaviour {
 				
 				}else{
 					//we dead
-					
+					PlaySteps = false;
 					if (Camera.main.transform.parent != null) SetModelVisibility(true);
 					
 					if (ourKiller!=null){
@@ -599,6 +723,13 @@ public class FPSEntity : MonoBehaviour {
 						Camera.main.transform.Translate(0,0,-2f);
 					}
 				}
+				
+				if (PlaySteps){
+					stepsSoundObj.audio.volume = 3f;
+				}else{
+					stepsSoundObj.audio.volume = 0f;
+				}
+				
 			}
 		}else{
 			if (lastUpdateTime>0f){
@@ -716,7 +847,32 @@ public class FPSEntity : MonoBehaviour {
 			}
 		}
 		
-		
+		if (!SophieNetworkScript.gameOver)
+		{
+			AnnouncedScore = false;
+		}
+		else if (SophieNetworkScript.gameOver && theNetwork.gameSettings.teamBased)
+		{
+			if (theNetwork.team1Score > theNetwork.team2Score)
+			{
+				if (!AnnouncedScore) Announce ("winred");
+			}
+			else if (theNetwork.team1Score < theNetwork.team2Score)
+			{
+				if (!AnnouncedScore) Announce ("winblue");
+			}
+			else if (theNetwork.team1Score == theNetwork.team2Score)
+			{
+				if (!AnnouncedScore) Announce ("wintie");
+			}
+			AnnouncedScore = true;
+		}
+		else
+		{
+			//nothing to announce on FFA games (yet)
+			if (!AnnouncedScore) Announce ("winbuzz");
+			AnnouncedScore = true;
+		}
 		
 		
 		//if dead, make unshootable
@@ -869,6 +1025,29 @@ public class FPSEntity : MonoBehaviour {
 				
 					hit = true;
 					
+					if (weaponType == "rifle")
+					{
+						thisPlayer.riflehits++;
+						if (thisPlayer.riflehits > 1 && thisPlayer.riflehits <= 3)
+						{
+							thisPlayer.fpsEntity.Announce ("impressive");
+							if (thisPlayer.local)
+							{
+								theNetwork.localPlayer.currentAward = "sharpshooter";
+								theNetwork.localPlayer.currentAwardTime = 3f;
+							}
+						}
+						else if (thisPlayer.riflehits > 3)
+						{
+							thisPlayer.fpsEntity.Announce ("outstanding");
+							if (thisPlayer.local)
+							{
+								theNetwork.localPlayer.currentAward = "sharpshooter";
+								theNetwork.localPlayer.currentAwardTime = 3f;
+							}
+						}
+					}
+				
 					
 					for (int i=0; i<theNetwork.players.Count; i++){
 						if (bulletHit.collider.gameObject == theNetwork.players[i].fpsEntity.gameObject){
@@ -879,8 +1058,16 @@ public class FPSEntity : MonoBehaviour {
 					registerhit = true;
 					//theNetwork.RegisterHit(weaponType, theNetwork.localPlayer.viewID, theNetwork.players[hitPlayer].viewID, bulletHit.point);
 				}
+				else
+				{
+					if (weaponType == "rifle")
+					{
+						thisPlayer.riflehits = 0;
+					}
+				}
 			}else{
 				//miss
+				
 			}
 			gameObject.layer = 8;
 					
@@ -898,6 +1085,8 @@ public class FPSEntity : MonoBehaviour {
 		
 		Vector3 spawnPos = Vector3.up;
 		Vector3 spawnAngle = Vector3.zero;
+		thisPlayer.riflehits = 0;
+		thisPlayer.sound = "";
 		
 		if (GameObject.Find("_Spawns") != null){
 			SpawnPointScript spawns = GameObject.Find("_Spawns").GetComponent<SpawnPointScript>();
@@ -956,6 +1145,15 @@ public class FPSEntity : MonoBehaviour {
 		
 		if (thisPlayer.health<=0f) moveVec = Vector3.zero;
 		
+		if (moveVec.magnitude > 0.1f){
+			thisPlayer.fpsEntity.stepsSoundObj.audio.volume = 3f;
+		}else{
+			thisPlayer.fpsEntity.stepsSoundObj.audio.volume = 0f;
+		}
+		
+		if (thisPlayer.sound != "")
+			thisPlayer.fpsEntity.PlaySound(thisPlayer.sound);
+		
 		if (cc == null) cc = GetComponent<CharacterController>();
 		
 		float timeDelta = (float)(Network.time - lastUpdateTime);
@@ -982,11 +1180,12 @@ public class FPSEntity : MonoBehaviour {
 		}else{
 			yMove -= timeDelta * 10f;
 		}
+		
 		cc.Move(Vector3.up * yMove * timeDelta * 5f);
 		
 	}
 	
-	public void UpdatePlayer(Vector3 pos, Vector3 ang, bool crouch, Vector3 move, float yMovement, double time, int gunA, int gunB){
+	public void UpdatePlayer(Vector3 pos, Vector3 ang, bool crouch, Vector3 move, float yMovement, double time, int gunA, int gunB, string sfx){
 		transform.position = pos;
 		camHolder.transform.eulerAngles = ang;
 		camAngle = ang;
@@ -994,9 +1193,9 @@ public class FPSEntity : MonoBehaviour {
 		moveVec = move;
 		yMove = yMovement;
 		lastUpdateTime = time;
-		
 		handGun = gunA;
 		holsterGun = gunB;
+		thisPlayer.sound = sfx;
 		
 		NonLocalUpdate();
 	}

@@ -42,9 +42,10 @@ public class GameModeScript : MonoBehaviour {
 	public int spawnGunA = 0;
 	public int spawnGunB = 1;
 	
-	//offhandCooldown
 	public bool offhandCooldown = false;
 	public bool scoreAirrockets = false;
+	public bool fallingDamage = false;
+	public bool noSelfdamage = false;
 	
 	//and what is in the level pickupslots?
 	public int pickupSlot1 = 0;

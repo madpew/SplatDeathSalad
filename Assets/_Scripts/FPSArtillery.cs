@@ -21,12 +21,13 @@ public class FPSArtillery : MonoBehaviour {
 	public GameObject soundObjectPrefab;
 	public AudioClip sfx_grenadeExplode;
 	public AudioClip sfx_rocketExplode;
-	
+	public AudioClip sfx_rocketfire;
 	public AudioClip sfx_machinegunshoot;
 	public AudioClip sfx_pistolshoot;
 	public AudioClip sfx_rifleshoot;
 	public AudioClip sfx_grenadethrow;
 	public AudioClip sfx_swappershoot;
+	
 	
 	
 	private List<GrenadeScript> activeGrenades = new List<GrenadeScript>();
@@ -80,12 +81,28 @@ public class FPSArtillery : MonoBehaviour {
 				if (localFire) newBullet.GetComponent<SimplePistolBullet>().start = localstart;
 				newBullet.GetComponent<SimplePistolBullet>().end = end;
 				
+				GameObject newBullet4 = (GameObject)GameObject.Instantiate(pistolBulletPrefab);
+				newBullet4.GetComponent<SimplePistolBullet>().start = origin;
+				newBullet4.GetComponent<SimplePistolBullet>().width = 0.02f;
+				newBullet4.GetComponent<SimplePistolBullet>().col = new Color(1,1,1,0.5f);
+				if (localFire) newBullet4.GetComponent<SimplePistolBullet>().start = localstart;
+				newBullet4.GetComponent<SimplePistolBullet>().end = end;
+				
 				GameObject newBullet2 = (GameObject)GameObject.Instantiate(swapperBulletPrefab);
 				newBullet2.GetComponent<SwapperBullet>().start = origin;
 				if (localFire && !hit) newBullet2.GetComponent<SwapperBullet>().start = localstart;
 				newBullet2.GetComponent<SwapperBullet>().end = end;
-				newBullet2.GetComponent<SwapperBullet>().hit = hit;
+				newBullet2.GetComponent<SwapperBullet>().customColor = true;
+				newBullet2.GetComponent<SwapperBullet>().Spread = 0.05f;
+				newBullet2.GetComponent<SwapperBullet>().col = new Color(1,0,0,0.5f);
 				
+				GameObject newBullet3 = (GameObject)GameObject.Instantiate(swapperBulletPrefab);
+				newBullet3.GetComponent<SwapperBullet>().start = origin;
+				if (localFire && !hit) newBullet3.GetComponent<SwapperBullet>().start = localstart;
+				newBullet3.GetComponent<SwapperBullet>().end = end;
+				newBullet3.GetComponent<SwapperBullet>().customColor = true;
+				newBullet3.GetComponent<SwapperBullet>().Spread = 0.05f;
+				newBullet3.GetComponent<SwapperBullet>().col = new Color(1,1,0,0.5f);
 				
 			} else if (weaponType == "pistol") {
 				GameObject newBullet = (GameObject)GameObject.Instantiate(pistolBulletPrefab);
@@ -103,6 +120,7 @@ public class FPSArtillery : MonoBehaviour {
 				float dissipationProgress = 0f;
 				while (dissipationProgress<dissipationLength){
 					GameObject newDiss = (GameObject)GameObject.Instantiate(rifleDissipationPrefab);
+					newDiss.GetComponent<RifleDissipationScript>().gravity = true;
 					newDiss.transform.position = dissipationStart + (dissipationDirection * dissipationProgress);
 					dissipationProgress += Random.Range(0.3f,0.7f);
 				}
@@ -117,7 +135,7 @@ public class FPSArtillery : MonoBehaviour {
 			newGrenade.GetComponent<GrenadeScript>().startTime = time;
 			newGrenade.GetComponent<GrenadeScript>().viewID = bulletID;
 			newGrenade.GetComponent<GrenadeScript>().shooterID = shooterID;
-			newGrenade.GetComponent<GrenadeScript>().detonationTime = 3f;
+			newGrenade.GetComponent<GrenadeScript>().detonationTime = 2f;
 			activeGrenades.Add(newGrenade.GetComponent<GrenadeScript>());
 		}
 		if (weaponType == "rocketlauncher"){
@@ -138,11 +156,15 @@ public class FPSArtillery : MonoBehaviour {
 				}
 			}
 			
-			GameObject newBullet = (GameObject)GameObject.Instantiate(swapperBulletPrefab);
-			newBullet.GetComponent<SwapperBullet>().start = origin;
-			if (localFire && !hit) newBullet.GetComponent<SwapperBullet>().start = localstart;
-			newBullet.GetComponent<SwapperBullet>().end = end;
-			newBullet.GetComponent<SwapperBullet>().hit = hit;
+			for (int i=0; i<4; i++)
+			{
+				GameObject newBullet = (GameObject)GameObject.Instantiate(swapperBulletPrefab);
+				newBullet.GetComponent<SwapperBullet>().start = origin;
+				if (localFire && !hit) newBullet.GetComponent<SwapperBullet>().start = localstart;
+				newBullet.GetComponent<SwapperBullet>().end = end;
+				newBullet.GetComponent<SwapperBullet>().hit = hit;
+				newBullet.GetComponent<SwapperBullet>().Spread = 0.4f;
+			}
 		}
 		
 		for (int i=0; i<theNetwork.players.Count; i++){
@@ -151,21 +173,22 @@ public class FPSArtillery : MonoBehaviour {
 					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.clip = sfx_pistolshoot;
 					if (theNetwork.players[i].viewID == theNetwork.localPlayer.viewID) theNetwork.players[i].fpsEntity.weaponSoundObj.audio.volume = 0.3f;
 					
-					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.pitch = Random.Range(1f,1.1f);
+					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.pitch = Random.Range(0.99f,1.01f);
 					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.Play();
 				}
 				if (weaponType=="machinegun"){
 					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.clip = sfx_machinegunshoot;
 					if (theNetwork.players[i].viewID == theNetwork.localPlayer.viewID) theNetwork.players[i].fpsEntity.weaponSoundObj.audio.volume = 0.3f;
 					
-					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.pitch = Random.Range(0.9f,1.1f);
+					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.pitch = Random.Range(0.95f,1.05f);
 					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.Play();
 				}
 				if (weaponType=="rifle"){
 					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.clip = sfx_rifleshoot;
+					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.pitch = 1f;
 					if (theNetwork.players[i].viewID == theNetwork.localPlayer.viewID) theNetwork.players[i].fpsEntity.weaponSoundObj.audio.volume = 0.3f;
 					
-					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.pitch = Random.Range(0.9f,1.1f);
+					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.pitch = 1f;
 					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.Play();
 				}
 				if (weaponType=="grenade"){
@@ -173,6 +196,13 @@ public class FPSArtillery : MonoBehaviour {
 					if (theNetwork.players[i].viewID == theNetwork.localPlayer.viewID) theNetwork.players[i].fpsEntity.weaponSoundObj.audio.volume = 0.3f;
 					
 					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.pitch = Random.Range(0.9f,1.1f);
+					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.Play();
+				}
+				if (weaponType=="rocketlauncher"){
+					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.clip = sfx_rocketfire;
+					if (theNetwork.players[i].viewID == theNetwork.localPlayer.viewID) theNetwork.players[i].fpsEntity.weaponSoundObj.audio.volume = 0.6f;
+					
+					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.pitch = 1f;
 					theNetwork.players[i].fpsEntity.weaponSoundObj.audio.Play();
 				}
 				if (weaponType=="swapper"){
@@ -196,6 +226,8 @@ public class FPSArtillery : MonoBehaviour {
 		if (weaponType == "suicide") return 9999f;
 		if (weaponType == "rocket") return 70f;
 		if (weaponType == "lava") return 9999f;
+		if (weaponType == "legs") return 10f;
+		if (weaponType == "bones") return 20f;
 		return 0;
 	}
 	
@@ -207,12 +239,12 @@ public class FPSArtillery : MonoBehaviour {
 				for (int k=0; k<theNetwork.players.Count; k++){
 					if (theNetwork.players[k].local){
 						float Dist = Vector3.Distance(theNetwork.players[k].fpsEntity.transform.position, activeGrenades[i].transform.position);
-						float push = 6;
+						float push = 5;
 						if (Dist < GetDetonationRadius("grenade")){
 							
 							if (Dist > GetDetonationRadius("grenade")/2)
 							{
-								push = 4;
+								push = 3;
 							}
 							
 							if (theNetwork.players[k].fpsEntity.transform.position.y > activeGrenades[i].transform.position.y){
@@ -238,7 +270,7 @@ public class FPSArtillery : MonoBehaviour {
 				GameObject grenadeSoundObj = (GameObject)GameObject.Instantiate(soundObjectPrefab);
 				grenadeSoundObj.transform.position = activeGrenades[i].transform.position;
 				grenadeSoundObj.audio.clip = sfx_grenadeExplode;
-				grenadeSoundObj.audio.volume = 2f;
+				grenadeSoundObj.audio.volume = 5f;
 				
 				
 				Destroy(activeGrenades[i].gameObject);
@@ -251,18 +283,43 @@ public class FPSArtillery : MonoBehaviour {
 		for (int i=0; i<activeRockets.Count; i++){
 			if (viewID == activeRockets[i].viewID){
 				
+				int shooteridx = -1;
+				for (int j=0; j<theNetwork.players.Count; j++){
+					if (theNetwork.players[j].viewID == activeRockets[i].shooterID)
+						shooteridx = j;
+				}
+				
 				//rocket jumping
 				for (int k=0; k<theNetwork.players.Count; k++){
-					if (theNetwork.players[k].local){
+					
 						float Dist = Vector3.Distance(theNetwork.players[k].fpsEntity.transform.position, activeRockets[i].transform.position);
-						float push = 6;
+						float push = 5;
 						if (Dist < GetDetonationRadius("rocket")){
+							
+						if (theNetwork.gameSettings.scoreAirrockets) {
+							if (!theNetwork.players[k].fpsEntity.grounded && theNetwork.players[k].health > 0)
+							{
+								if (shooteridx != -1 && shooteridx != k)
+								{
+									theNetwork.players[shooteridx].fpsEntity.Announce ("airrocket");
+									
+									if (theNetwork.players[shooteridx].local)
+									{
+										theNetwork.localPlayer.currentAward = "airrocket";
+										theNetwork.localPlayer.currentAwardTime = 3f;
+									}
+								}
+							}
+						}
+						
+						
+						if (theNetwork.players[k].local){
 							
 							if (Dist > GetDetonationRadius("rocket")/2)
 							{
-								push = 4;
+								push = 3;
 							}
-							
+						
 							if (theNetwork.players[k].fpsEntity.transform.position.y > activeRockets[i].transform.position.y){
 								theNetwork.players[k].fpsEntity.yMove += push;
 							} else if (theNetwork.players[k].fpsEntity.transform.position.y < activeRockets[i].transform.position.y){
@@ -286,7 +343,7 @@ public class FPSArtillery : MonoBehaviour {
 				GameObject rocketSoundObj = (GameObject)GameObject.Instantiate(soundObjectPrefab);
 				rocketSoundObj.transform.position = activeRockets[i].transform.position;
 				rocketSoundObj.audio.clip = sfx_rocketExplode;
-				rocketSoundObj.audio.volume = 4f;
+				rocketSoundObj.audio.volume = 5f;
 				
 				Destroy(activeRockets[i].gameObject);
 				activeRockets.RemoveAt(i);

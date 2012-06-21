@@ -24,6 +24,8 @@ public class FPSGUI : MonoBehaviour {
 	
 	public string menuPoint = "top";
 	
+	public Texture Award_Airrocket;
+	public Texture Award_Sharpshooter;
 	
 	private Vector2 scrollPos = Vector2.zero;
 	
@@ -81,6 +83,7 @@ public class FPSGUI : MonoBehaviour {
 		theNetwork.gunBobbing = PlayerPrefs.GetInt("GunBobbing",1)==1;
 		theNetwork.autoPickup = PlayerPrefs.GetInt("autoPickup",0)==1;
 		theNetwork.autoPickupHealth = PlayerPrefs.GetInt("autoPickupHealth",0)==1;
+		theNetwork.announcer = PlayerPrefs.GetInt("announcer", 1)==1;
 		theNetwork.gameVolume = PlayerPrefs.GetFloat("GameVolume", 1f);
 	}
 	
@@ -381,6 +384,40 @@ public class FPSGUI : MonoBehaviour {
 				int healthWidthB = (int)((((float)healthWidth)/100f)*theNetwork.localPlayer.health);
 				GUI.DrawTexture(new Rect((Screen.width/2)-(healthWidth/2), Screen.height-13, healthWidthB, 5), backTex);
 				
+				
+				//awards:
+				if (theNetwork.localPlayer.currentAward != "")
+				{
+					if (theNetwork.localPlayer.currentAwardTime > 0)
+					{
+						theNetwork.localPlayer.currentAwardTime -= Time.deltaTime;
+						//get texture by Awardname
+						Texture temp = null;
+						if (theNetwork.localPlayer.currentAward == "airrocket")
+							temp = Award_Airrocket;
+						else if (theNetwork.localPlayer.currentAward == "sharpshooter")
+							temp = Award_Sharpshooter;
+						int Awardwidth = (Screen.width/3);
+						int Awardheight = (Screen.height/10);
+						Color tmpcol = GUI.color;	
+						
+						if (theNetwork.localPlayer.currentAwardTime > 1)
+							GUI.color = new Color(1,1,1,1);
+						else
+							GUI.color = new Color(1,1,1,theNetwork.localPlayer.currentAwardTime);
+						
+						GUI.DrawTexture(new Rect((Screen.width/2)-(Awardwidth/2), Awardheight, Awardwidth, Awardheight), temp);
+						GUI.color = tmpcol;
+					}
+					else
+					{
+						theNetwork.localPlayer.currentAward = "";
+						theNetwork.localPlayer.currentAwardTime = 0f;
+					}
+				}
+				
+				
+				
 				//lives
 				if (theNetwork.gameSettings.playerLives>0){
 					int lifeCount = 0;
@@ -567,6 +604,7 @@ public class FPSGUI : MonoBehaviour {
 			GUI.Label(new Rect(160, 20,50,20), "Kills:");
 			GUI.Label(new Rect(210, 20,50,20), "Deaths:");
 			GUI.Label(new Rect(270, 20,50,20), "Score:");
+			GUI.Label(new Rect(330, 20,50,20), "Ping:");
 			if (theNetwork.gameSettings.playerLives!= 0) GUI.Label(new Rect(400, 20,50,20), "Lives:");
 			for (int i=0; i<theNetwork.players.Count; i++){
 				GUI.color = new Color(0.8f, 0.8f, 0.8f, 1f);
@@ -577,6 +615,7 @@ public class FPSGUI : MonoBehaviour {
 				GUI.Label(new Rect(160,(i*20) + 40,50,20), theNetwork.players[i].kills.ToString());
 				GUI.Label(new Rect(210,(i*20) + 40,50,20), theNetwork.players[i].deaths.ToString());
 				GUI.Label(new Rect(270,(i*20) + 40,50,20), theNetwork.players[i].currentScore.ToString());
+				GUI.Label(new Rect(330,(i*20) + 40,50,20), theNetwork.players[i].pingtime.ToString());
 				if (theNetwork.gameSettings.playerLives!= 0) GUI.Label(new Rect(400, (i*20) + 40,50,20), theNetwork.players[i].lives.ToString());
 			}
 			
@@ -790,13 +829,13 @@ public class FPSGUI : MonoBehaviour {
 		GUILayout.BeginHorizontal();
 		fsWidth = MakeInt(GUILayout.TextField(fsWidth.ToString()));
 		fsHeight = MakeInt(GUILayout.TextField(fsHeight.ToString()));
-		if (GUILayout.Button("Fullscreen!")){
+		if (GUILayout.Button("Fullscreen")){
 			Screen.SetResolution(fsWidth, fsHeight, true);
 		}
 		GUILayout.EndHorizontal();
 		GUILayout.Label("Audio Volume:");
 		theNetwork.gameVolume = GUILayout.HorizontalSlider(theNetwork.gameVolume,0.0f,1f);
-		
+		theNetwork.announcer = GUILayout.Toggle(theNetwork.announcer, "Announcer");
 		
 		if (invX) PlayerPrefs.SetInt("InvertX", 1);
 		if (!invX) PlayerPrefs.SetInt("InvertX", 0);
@@ -819,6 +858,12 @@ public class FPSGUI : MonoBehaviour {
 			PlayerPrefs.SetInt("autoPickupHealth", 1);
 		}else{
 			PlayerPrefs.SetInt("autoPickupHealth", 0);
+		}
+		
+		if (theNetwork.announcer){
+			PlayerPrefs.SetInt("announcer", 1);
+		}else{
+			PlayerPrefs.SetInt("announcer", 0);
 		}
 		
 		PlayerPrefs.SetFloat("GameVolume", theNetwork.gameVolume);
@@ -955,6 +1000,8 @@ public class FPSGUI : MonoBehaviour {
 				modes[0].spawnGunA = modes[gameModeInt].spawnGunA;
 				modes[0].spawnGunB = modes[gameModeInt].spawnGunB;
 				modes[0].offhandCooldown = modes[gameModeInt].offhandCooldown;
+				modes[0].fallingDamage = modes[gameModeInt].fallingDamage;
+				modes[0].noSelfdamage = modes[gameModeInt].noSelfdamage;
 				modes[0].scoreAirrockets = modes[gameModeInt].scoreAirrockets;
 				modes[0].pickupSlot1 = modes[gameModeInt].pickupSlot1;
 				modes[0].pickupSlot2 = modes[gameModeInt].pickupSlot2;
@@ -997,6 +1044,10 @@ public class FPSGUI : MonoBehaviour {
 			modes[gameModeInt].allowFriendlyFire = GUILayout.Toggle(modes[gameModeInt].allowFriendlyFire, "Allow Friendly Fire");
 			
 			modes[gameModeInt].pitchBlack = GUILayout.Toggle(modes[gameModeInt].pitchBlack, "Pitch Black");
+			
+			modes[gameModeInt].fallingDamage = GUILayout.Toggle(modes[gameModeInt].fallingDamage, "Falling Damage");
+			
+			modes[gameModeInt].noSelfdamage = GUILayout.Toggle(modes[gameModeInt].noSelfdamage, "no Selfdamage");
 			
 			GUILayout.Label(" --- Round end conditions (set to 0 to ignore) --- ");
 			

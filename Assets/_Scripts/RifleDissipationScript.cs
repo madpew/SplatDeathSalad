@@ -5,8 +5,10 @@ public class RifleDissipationScript : MonoBehaviour {
 
 	private Vector3 moveVec = Vector3.zero;
 	
-	private float life = 2f;
+	private float life = 1.5f;
+	public bool gravity = false;
 	
+	private Vector3 grav = new Vector3();
 	// Use this for initialization
 	void Start () {
 		moveVec = new Vector3(Random.Range(-1f,1f),Random.Range(-1f,1f),Random.Range(-1f,1f));
@@ -18,6 +20,13 @@ public class RifleDissipationScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		transform.position += moveVec * Time.deltaTime * 0.2f;
+		
+		if (gravity)
+		{
+			grav.y -= Random.Range(0f,Time.deltaTime * 0.05f);
+			transform.position += grav;
+		}
+		
 		//moveVec.y += 8f * Time.deltaTime;
 		//moveVec.x -= (0-moveVec.x) * Time.deltaTime * -3f;
 		//moveVec.z -= (0-moveVec.z) * Time.deltaTime * -3f;

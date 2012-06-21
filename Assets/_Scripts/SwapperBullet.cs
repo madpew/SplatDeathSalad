@@ -6,9 +6,11 @@ public class SwapperBullet : MonoBehaviour {
 	
 	private LineRenderer lr;
 	
-	private Color col = new Color(1,1,1,0.5f);
+	public Color col = new Color(1,1,1,0.5f);
 	public Vector3 start;
 	public Vector3 end;
+	public float Spread = 0.2f;
+	public bool customColor = false;
 	
 	public bool hit = false;
 	
@@ -18,11 +20,12 @@ public class SwapperBullet : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		lr = GetComponent<LineRenderer>();
-		
-		
-		
-		if (hit) col = new Color(0,1,1,0.35f);
-		if (!hit) col = new Color(1,0.5f,0,0.35f);
+
+		if (!customColor)
+		{
+			if (hit) col = new Color(0,1,1,0.35f);
+			if (!hit) col = new Color(1,0.5f,0,0.35f);
+		}
 		
 		lr.SetColors(col,col);
 		
@@ -35,9 +38,8 @@ public class SwapperBullet : MonoBehaviour {
 		moves = new Vector3[stepCount];
 		for (int i=0; i<stepCount; i++){
 			points[i] = start + (direction * i * 0.5f);
-			points[i] += new Vector3(Random.Range(-0.2f,0.2f),Random.Range(-0.2f,0.2f),Random.Range(-0.2f,0.2f));
-			
-			moves[i] = new Vector3(Random.Range(-0.2f,0.2f),Random.Range(-0.2f,0.2f),Random.Range(-0.2f,0.2f));
+			points[i] += new Vector3(Random.Range(-Spread,Spread),Random.Range(-Spread,Spread),Random.Range(-Spread,Spread));
+			moves[i] = new Vector3(Random.Range(-Spread,Spread),Random.Range(-Spread,Spread),Random.Range(-Spread,Spread));
 		}
 		
 		lr.SetVertexCount(points.Length+1);
