@@ -2,6 +2,9 @@ SplatDeathSalad
 ===============
 This is a modified version of SplatDeathSalad, a game by Sophie Houlden for the 7dfps-competition.
 
+Webplayer available here: http://pixelsiege.net/sdspew/WebPlayer.html (7mb)
+
+
 # further information: #
 * Original Entry: http://7dfps.org/?projects=splat-death-salad
 * http://www.sophiehoulden.com/
@@ -49,7 +52,6 @@ This is a modified version of SplatDeathSalad, a game by Sophie Houlden for the 
 * fixed swapper locking on teammates in teambased games.
 
 # work in progress #
-Scoreboard Ping Column
+Scoreboard Ping-column
 Restructure this readme for better understanding of the changes.
-gamemode: freeze tag
-gamemode: insta-gib
+gamemodes: freeze tag, instagib
