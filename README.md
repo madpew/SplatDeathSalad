@@ -1,57 +1,63 @@
 SplatDeathSalad
 ===============
 This is a modified version of SplatDeathSalad, a game by Sophie Houlden for the 7dfps-competition.
-
-Webplayer available here: http://pixelsiege.net/sdspew/WebPlayer.html (7mb)
-
+Play it here: http://pixelsiege.net/sdspew/WebPlayer.html
 
 # further information: #
-* Original Entry: http://7dfps.org/?projects=splat-death-salad
-* http://www.sophiehoulden.com/
-* http://www.7dfps.org/
+* Original Competition Entry: http://7dfps.org/?projects=splat-death-salad
+* Sophies website: http://www.sophiehoulden.com/
+* 7dfps-Competition: http://www.7dfps.org/
+* Play the official game on Kongregate: http://www.kongregate.com/games/SophieHoulden/splat-death-salad
 
-# changes so far: #
-* fixed rockets not colliding with players
+# fixes #
+* fixed rockets collisions (with players but not shooter)
 * fixed grenadebounce-soundbug
-* fixed rocketjumps
-* fixed explosion fx
-* added grenadejumps
-* added scorebonus for airrockets
-* added gamemode "RocketArena"
-* weapon balancing
-* modified basketball bounce behaviour
-* added randomized grenade bounce pitch
-* modified bulletfx (colored trails)
-* modified map "Overpass"
-* modified gamemode deathmatch (pickupslots)
-* changed networkidentifier
-* changed mainmenu and about-information
-* changed windowicon and title
-* modified chatmessages
-* added serveroption "offhand cooldown"
-* added serveroption "score airrockets"
-* added playeroption auto-pickup health
-* added basketball-watchdog to reset a lost ball
-* changed/added textures
+* fixed rocketjumps behaviour
+* swapper no longer locking on dead players
+* swapper no longer locking on teammates
 * fixed basketball scoreing after gameover
-* added sound for ball throwing
-* added multiple hitsounds
-* added falling damage with according serveroption
 * fixed selfdamage with allowFriendlyFire off
-* fixed use of soundchannels
-* added announcer for airrockets + basketball + scoreboard
-* added option to disable announcer
-* added footsteps
 * fixed scoreboard text (teamswitching not working while gameover, removed message)
-* added announcer for multiple riflehits in a row.
-* added serveroption "no Selfdamage"
+* fixed use of soundchannels
+* fixed remote sounds (hear other players jump, takeDamage, ...)
+
+# changes # 
+* weapon balancing
+* explosion fx
+* weapon fx
+* basketball bounce behaviour
+* changed map "Overpass" (layout, textures and baskets)
+* gamemode deathmatch (pickupslots)
+* changed/added textures
 * replaced playersounds
 * replaced weaponsounds
-* added Awards to HUD
-* fixed swapper locking on dead players
-* fixed swapper locking on teammates in teambased games.
+* networkidentifier
+* mainmenu and about-information
+* windowicon and title
+* modified chatmessages
+
+# additions #
+* added grenadejumps
+* added gamemode "RocketArena"
+* randomized grenade bounce pitch
+* added colored bullet-trails
+* added "offhand cooldown"-setting (auto-reloads holstered guns)
+* added airrockets-award (rocket-hit a flying player)
+* added impressive-award (multiple riflehits in a row)
+* added playeroption "auto-pickup health"
+* added basketball-watchdog to reset a lost ball
+* added sound for ball-throwing
+* damage-aware hitsounds
+* added "fallingdamage"-setting (height dependant)
+* added announcer
+* added awards to HUD
+* added footsteps
+* "no Selfdamage"-setting
 
 # work in progress #
-Scoreboard Ping-column
-Restructure this readme for better understanding of the changes.
-gamemodes: freeze tag, instagib
+* Scoreboard Ping-column
+* gamemode: freeze tag
+* gamemode: instagib
+* gamemode: laserarena
+* gamemode: basketball-pro
+* heavy movement-changes ahead
