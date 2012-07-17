@@ -46,6 +46,8 @@ public class GameModeScript : MonoBehaviour {
 	public bool scoreAirrockets = false;
 	public bool fallingDamage = false;
 	public bool noSelfdamage = false;
+	public bool superRifle = false;
+	public bool singleGrenades = false;
 	
 	//and what is in the level pickupslots?
 	public int pickupSlot1 = 0;

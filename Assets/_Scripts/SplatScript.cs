@@ -6,7 +6,7 @@ public class SplatScript : MonoBehaviour {
 	
 	private Vector3 moveVec = Vector3.zero;
 	
-	private float life = 1f;
+	private float life = 3f;
 	
 	// Use this for initialization
 	void Start () {

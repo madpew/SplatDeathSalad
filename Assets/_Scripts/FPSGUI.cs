@@ -26,6 +26,7 @@ public class FPSGUI : MonoBehaviour {
 	
 	public Texture Award_Airrocket;
 	public Texture Award_Sharpshooter;
+	public Texture FlagTexture;
 	
 	private Vector2 scrollPos = Vector2.zero;
 	
@@ -84,6 +85,7 @@ public class FPSGUI : MonoBehaviour {
 		theNetwork.autoPickup = PlayerPrefs.GetInt("autoPickup",0)==1;
 		theNetwork.autoPickupHealth = PlayerPrefs.GetInt("autoPickupHealth",0)==1;
 		theNetwork.announcer = PlayerPrefs.GetInt("announcer", 1)==1;
+		theNetwork.autoSwitch = PlayerPrefs.GetInt ("autoSwitch",0)==1;
 		theNetwork.gameVolume = PlayerPrefs.GetFloat("GameVolume", 1f);
 	}
 	
@@ -102,7 +104,7 @@ public class FPSGUI : MonoBehaviour {
 				
 				if (GUILayout.Button("Host a game")){
 					menuPoint = "host";
-					theNetwork.gameName = theNetwork.localPlayer.name + "'s Game";
+					theNetwork.gameName = theNetwork.localPlayer.name + "s Game";
 				}
 				if (GUILayout.Button("Join a game")){
 					menuPoint = "join";
@@ -371,8 +373,6 @@ public class FPSGUI : MonoBehaviour {
 						int swapperFrame = Mathf.FloorToInt((Time.time*15f) % swapperCrosshair.Length);
 						if (!swapperLocked) swapperFrame = 0;
 						
-						
-						
 						GUI.DrawTexture(new Rect(swapperCrossX-32, (Screen.height-swapperCrossY)-32, 64, 64), swapperCrosshair[swapperFrame]);
 						
 					}
@@ -384,42 +384,110 @@ public class FPSGUI : MonoBehaviour {
 				int healthWidthB = (int)((((float)healthWidth)/100f)*theNetwork.localPlayer.health);
 				GUI.DrawTexture(new Rect((Screen.width/2)-(healthWidth/2), Screen.height-13, healthWidthB, 5), backTex);
 				
+				//teamflag:
+				if (theNetwork.gameSettings.teamBased)
+				{
+					Color tmp = new Color(0,0,0,0);
+					
+					if (theNetwork.localPlayer.team == 1)
+					{
+						tmp = new Color(1,0,0,0.7f);
+					}
+					else
+					{
+						tmp = new Color(0,0,1,0.7f);
+					}
+					
+					Color tmpcol = GUI.color;
+					GUI.color = tmp;
+					GUI.DrawTexture(new Rect(8,8, 64, 64), FlagTexture);
+					GUI.color = tmpcol;
+				}
 				
 				//awards:
-				if (theNetwork.localPlayer.currentAward != "")
+				int tmpidx = -1;
+				
+				for(int i=0; i<theNetwork.players.Count; i++)
 				{
-					if (theNetwork.localPlayer.currentAwardTime > 0)
+					if (theNetwork.players[i].viewID == theNetwork.localPlayer.viewID) tmpidx = i;
+				}
+				
+				if (theNetwork.players[tmpidx].currentAward != "")
+				{
+					if (theNetwork.players[tmpidx].currentAwardTime > 0)
 					{
-						theNetwork.localPlayer.currentAwardTime -= Time.deltaTime;
+						theNetwork.players[tmpidx].currentAwardTime -= Time.deltaTime;
 						//get texture by Awardname
 						Texture temp = null;
-						if (theNetwork.localPlayer.currentAward == "airrocket")
+						if (theNetwork.players[tmpidx].currentAward == "airrocket")
 							temp = Award_Airrocket;
-						else if (theNetwork.localPlayer.currentAward == "sharpshooter")
+						else if (theNetwork.players[tmpidx].currentAward == "sharpshooter")
 							temp = Award_Sharpshooter;
 						int Awardwidth = (Screen.width/3);
 						int Awardheight = (Screen.height/10);
 						Color tmpcol = GUI.color;	
 						
-						if (theNetwork.localPlayer.currentAwardTime > 1)
+						if (theNetwork.players[tmpidx].currentAwardTime > 1)
 							GUI.color = new Color(1,1,1,1);
 						else
-							GUI.color = new Color(1,1,1,theNetwork.localPlayer.currentAwardTime);
+							GUI.color = new Color(1,1,1,theNetwork.players[tmpidx].currentAwardTime);
 						
-						GUI.DrawTexture(new Rect((Screen.width/2)-(Awardwidth/2), Awardheight, Awardwidth, Awardheight), temp);
+						GUI.DrawTexture(new Rect((Screen.width/2)-(Awardwidth/2), Awardheight, Awardwidth, (int)(Awardheight*1.5)), temp);
 						GUI.color = tmpcol;
 					}
 					else
 					{
-						theNetwork.localPlayer.currentAward = "";
-						theNetwork.localPlayer.currentAwardTime = 0f;
+						theNetwork.players[tmpidx].currentAward = "";
+						theNetwork.players[tmpidx].currentAwardTime = 0f;
 					}
 				}
 				
-				
+				//kill message
+				if (theNetwork.players[tmpidx].killMessage != "")
+				{
+					if (theNetwork.players[tmpidx].killMessageTime > 0)
+					{
+						theNetwork.players[tmpidx].killMessageTime -= Time.deltaTime;
+						
+						int kmwidth = (Screen.width/2);
+						int kmheight = (Screen.height/2) - 64;
+						
+						Color tmpcol = GUI.color;	
+						
+						var centeredStyle = GUI.skin.GetStyle("Label");
+					    centeredStyle.alignment = TextAnchor.UpperCenter;
+						
+						if (theNetwork.players[tmpidx].killMessageTime > 1)
+							GUI.color = new Color(0,0,0,1);
+						else
+							GUI.color = new Color(0,0,0,theNetwork.players[tmpidx].killMessageTime);
+						
+						GUI.Label(new Rect(kmwidth-400-1, kmheight-1, 800, 32),theNetwork.players[tmpidx].killMessage, centeredStyle);
+						GUI.Label(new Rect(kmwidth-400-1, kmheight+1, 800, 32),theNetwork.players[tmpidx].killMessage, centeredStyle);
+						GUI.Label(new Rect(kmwidth-400+1, kmheight-1, 800, 32),theNetwork.players[tmpidx].killMessage, centeredStyle);
+						GUI.Label(new Rect(kmwidth-400+1, kmheight+1, 800, 32),theNetwork.players[tmpidx].killMessage, centeredStyle);
+						
+						if (theNetwork.players[tmpidx].killMessageTime > 1)
+							GUI.color = new Color(1,1,1,1);
+						else
+							GUI.color = new Color(1,1,1,theNetwork.players[tmpidx].killMessageTime);
+
+						
+						GUI.Label(new Rect(kmwidth-400, kmheight, 800, 32),theNetwork.players[tmpidx].killMessage, centeredStyle);
+						
+						centeredStyle.alignment = TextAnchor.UpperLeft;
+						
+						GUI.color = tmpcol;
+					}
+					else
+					{
+						theNetwork.players[tmpidx].killMessage = "";
+						theNetwork.players[tmpidx].killMessageTime = 0f;
+					}
+				}
 				
 				//lives
-				if (theNetwork.gameSettings.playerLives>0){
+				if (theNetwork.gameSettings.playerLives>1){
 					int lifeCount = 0;
 					for (int i=0; i<theNetwork.players.Count; i++){
 						if (theNetwork.players[i].local) lifeCount = theNetwork.players[i].lives;
@@ -456,10 +524,8 @@ public class FPSGUI : MonoBehaviour {
 					GUI.Label(new Rect(6, 5, 300, 60), "Spectating: " + theNetwork.players[spectateInt].name + "\n\nYou will be able to play once this round is over.");
 					GUI.Label(new Rect(5, 4, 300, 60), "Spectating: " + theNetwork.players[spectateInt].name + "\n\nYou will be able to play once this round is over.");
 					GUI.Label(new Rect(5, 6, 300, 60), "Spectating: " + theNetwork.players[spectateInt].name + "\n\nYou will be able to play once this round is over.");
-					
 					GUI.color = gcol;
 					GUI.Label(new Rect(5, 5, 300, 60), "Spectating: " + theNetwork.players[spectateInt].name + "\n\nYou will be able to play once this round is over.");
-					
 				}
 				
 				//weapon
@@ -470,13 +536,10 @@ public class FPSGUI : MonoBehaviour {
 				
 				if (gunA>=0){
 					GUI.color = Color.black;
-				
 					GUI.Label(new Rect(Screen.width-99, Screen.height-20, 100, 30), artillery.gunTypes[gunA].gunName );
 					GUI.Label(new Rect(Screen.width-101, Screen.height-20, 100, 30), artillery.gunTypes[gunA].gunName );
 					GUI.Label(new Rect(Screen.width-100, Screen.height-21, 100, 30), artillery.gunTypes[gunA].gunName );
 					GUI.Label(new Rect(Screen.width-100, Screen.height-19, 100, 30), artillery.gunTypes[gunA].gunName );
-				
-					
 					GUI.color = gcol;
 					GUI.Label(new Rect(Screen.width-100, Screen.height-20, 100, 30), artillery.gunTypes[gunA].gunName );
 				}
@@ -500,13 +563,11 @@ public class FPSGUI : MonoBehaviour {
 			if (!SophieNetworkScript.gameOver){
 				if (theNetwork.gameSettings.gameTime>0f){
 					//game has a time limit, let's display the time
-					
 					GUI.color = Color.black;
 					GUI.Label(new Rect((Screen.width/2)-11, 5, 200, 30), TimeStringFromSecs(theNetwork.gameTimeLeft) );
 					GUI.Label(new Rect((Screen.width/2)-9, 5, 200, 30), TimeStringFromSecs(theNetwork.gameTimeLeft) );
 					GUI.Label(new Rect((Screen.width/2)-10, 4, 200, 30), TimeStringFromSecs(theNetwork.gameTimeLeft) );
 					GUI.Label(new Rect((Screen.width/2)-10, 6, 200, 30), TimeStringFromSecs(theNetwork.gameTimeLeft) );
-					
 					GUI.color = gcolB;
 					GUI.Label(new Rect((Screen.width/2)-10, 5, 200, 30), TimeStringFromSecs(theNetwork.gameTimeLeft) );
 					//GUI.Label(new Rect((Screen.width/2)-10, 5, 200, 30), Mathf.FloorToInt(theNetwork.gameTimeLeft).ToString() );
@@ -518,16 +579,10 @@ public class FPSGUI : MonoBehaviour {
 				GUI.Label(new Rect((Screen.width/2)-49, 5, 200, 30), "Next Game in: " +  Mathf.FloorToInt(theNetwork.nextMatchTime).ToString() + " seconds.");
 				GUI.Label(new Rect((Screen.width/2)-50, 4, 200, 30), "Next Game in: " +  Mathf.FloorToInt(theNetwork.nextMatchTime).ToString() + " seconds.");
 				GUI.Label(new Rect((Screen.width/2)-50, 6, 200, 30), "Next Game in: " +  Mathf.FloorToInt(theNetwork.nextMatchTime).ToString() + " seconds.");
-				
 				GUI.color = gcolB;
 				GUI.Label(new Rect((Screen.width/2)-50, 5, 200, 30), "Next Game in: " +  Mathf.FloorToInt(theNetwork.nextMatchTime).ToString() + " seconds.");
 			}
-			
 		}
-		
-		
-		
-		
 	}
 	
 	string TimeStringFromSecs(float totalSecs){
@@ -604,7 +659,7 @@ public class FPSGUI : MonoBehaviour {
 			GUI.Label(new Rect(160, 20,50,20), "Kills:");
 			GUI.Label(new Rect(210, 20,50,20), "Deaths:");
 			GUI.Label(new Rect(270, 20,50,20), "Score:");
-			GUI.Label(new Rect(330, 20,50,20), "Ping:");
+			
 			if (theNetwork.gameSettings.playerLives!= 0) GUI.Label(new Rect(400, 20,50,20), "Lives:");
 			for (int i=0; i<theNetwork.players.Count; i++){
 				GUI.color = new Color(0.8f, 0.8f, 0.8f, 1f);
@@ -615,7 +670,6 @@ public class FPSGUI : MonoBehaviour {
 				GUI.Label(new Rect(160,(i*20) + 40,50,20), theNetwork.players[i].kills.ToString());
 				GUI.Label(new Rect(210,(i*20) + 40,50,20), theNetwork.players[i].deaths.ToString());
 				GUI.Label(new Rect(270,(i*20) + 40,50,20), theNetwork.players[i].currentScore.ToString());
-				GUI.Label(new Rect(330,(i*20) + 40,50,20), theNetwork.players[i].pingtime.ToString());
 				if (theNetwork.gameSettings.playerLives!= 0) GUI.Label(new Rect(400, (i*20) + 40,50,20), theNetwork.players[i].lives.ToString());
 			}
 			
@@ -679,7 +733,7 @@ public class FPSGUI : MonoBehaviour {
 			
 			GUI.color = Color.black;
 			yOffset++;
-			if (!SophieNetworkScript.gameOver) GUI.Label(new Rect(10,(yOffset*20) + 60,300,20), ">> TO CHANGE TEAMS, PRESS 'T' <<");
+			if (!SophieNetworkScript.gameOver) GUI.Label(new Rect(10,(yOffset*20) + 60,300,20), "> TO CHANGE TEAMS, PRESS 'T' <");
 		}
 		
 		GUI.color = guiCol;
@@ -825,6 +879,7 @@ public class FPSGUI : MonoBehaviour {
 		theNetwork.gunBobbing = GUILayout.Toggle(theNetwork.gunBobbing, "Gun Bobbing");
 		theNetwork.autoPickup = GUILayout.Toggle(theNetwork.autoPickup, "Auto-Pickup");
 		theNetwork.autoPickupHealth = GUILayout.Toggle(theNetwork.autoPickupHealth, "Auto-Pickup Health");
+		theNetwork.autoSwitch = GUILayout.Toggle(theNetwork.autoSwitch, "Auto-Switch empty Gun");
 		
 		GUILayout.BeginHorizontal();
 		fsWidth = MakeInt(GUILayout.TextField(fsWidth.ToString()));
@@ -858,6 +913,12 @@ public class FPSGUI : MonoBehaviour {
 			PlayerPrefs.SetInt("autoPickupHealth", 1);
 		}else{
 			PlayerPrefs.SetInt("autoPickupHealth", 0);
+		}
+		
+		if (theNetwork.autoSwitch){
+			PlayerPrefs.SetInt ("autoSwitch",1);	
+		}else{
+			PlayerPrefs.SetInt ("autoSwitch",0);	
 		}
 		
 		if (theNetwork.announcer){
@@ -906,7 +967,7 @@ public class FPSGUI : MonoBehaviour {
 			//set up server name/pass
 			GUILayout.BeginArea(new Rect(5,20,290,400));
 			GUILayout.BeginHorizontal();
-			GUILayout.Label("Game Name: ");
+			GUILayout.Label("Hostname: ");
 			theNetwork.gameName = GUILayout.TextField(theNetwork.gameName);
 			GUILayout.EndHorizontal();
 			GUILayout.BeginHorizontal();
@@ -1002,6 +1063,8 @@ public class FPSGUI : MonoBehaviour {
 				modes[0].offhandCooldown = modes[gameModeInt].offhandCooldown;
 				modes[0].fallingDamage = modes[gameModeInt].fallingDamage;
 				modes[0].noSelfdamage = modes[gameModeInt].noSelfdamage;
+				modes[0].superRifle = modes[gameModeInt].superRifle;
+				modes[0].singleGrenades = modes[gameModeInt].singleGrenades;
 				modes[0].scoreAirrockets = modes[gameModeInt].scoreAirrockets;
 				modes[0].pickupSlot1 = modes[gameModeInt].pickupSlot1;
 				modes[0].pickupSlot2 = modes[gameModeInt].pickupSlot2;
@@ -1092,6 +1155,8 @@ public class FPSGUI : MonoBehaviour {
 			GUILayout.EndHorizontal();
 			
 			modes[gameModeInt].offhandCooldown = GUILayout.Toggle(modes[gameModeInt].offhandCooldown, "Offhand Cooldown");
+			modes[gameModeInt].superRifle = GUILayout.Toggle(modes[gameModeInt].superRifle, "double Rifledamage");
+			modes[gameModeInt].singleGrenades = GUILayout.Toggle(modes[gameModeInt].singleGrenades, "single-Grenades");
 			
 			GUILayout.Label(" --- ");
 			//gun slot 1

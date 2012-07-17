@@ -32,6 +32,8 @@ public class FPSPlayer {
 	
 	public string currentAward = "";
 	public float currentAwardTime = 0f;
+	public string killMessage = "";
+	public float killMessageTime = 0f;
 	
 	public float health = 100f;
 	

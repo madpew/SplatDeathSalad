@@ -34,7 +34,7 @@ public class FPSMessages : MonoBehaviour {
 		
 		//display messages
 		if (Time.time< textDisplayTime){
-		for (int i=0; i<15; i++){
+		for (int i=0; i<8; i++){
 			
 			if (i<messages.Count){
 				

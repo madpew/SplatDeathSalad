@@ -1,7 +1,8 @@
-SplatDeathSalad
-===============
+SplatDeathSalad PEW
+===================
 This is a modified version of SplatDeathSalad, a game by Sophie Houlden for the 7dfps-competition.
-Play it here: http://pixelsiege.net/sdspew/WebPlayer.html
+
+Play it here: http://pixelsiege.net/sdspew/
 
 # further information: #
 * Original Competition Entry: http://7dfps.org/?projects=splat-death-salad
@@ -20,8 +21,12 @@ Play it here: http://pixelsiege.net/sdspew/WebPlayer.html
 * fixed scoreboard text (teamswitching not working while gameover, removed message)
 * fixed use of soundchannels
 * fixed remote sounds (hear other players jump, takeDamage, ...)
+* fixed weaponswitching with only 1 gun
+* fixed cleaning up rockets
+* fixed gameover-loop for Life-modes
+* fixed ball getting out of sync
 
-# changes # 
+# changes #
 * weapon balancing
 * explosion fx
 * weapon fx
@@ -35,6 +40,8 @@ Play it here: http://pixelsiege.net/sdspew/WebPlayer.html
 * mainmenu and about-information
 * windowicon and title
 * modified chatmessages
+* changed movement (friction, aircontrol, acceleration)
+* using custom masterserver
 
 # additions #
 * added grenadejumps
@@ -47,17 +54,18 @@ Play it here: http://pixelsiege.net/sdspew/WebPlayer.html
 * added playeroption "auto-pickup health"
 * added basketball-watchdog to reset a lost ball
 * added sound for ball-throwing
-* damage-aware hitsounds
+* added damage-aware hitsounds
 * added "fallingdamage"-setting (height dependant)
 * added announcer
 * added awards to HUD
 * added footsteps
-* "no Selfdamage"-setting
-
-# work in progress #
-* Scoreboard Ping-column
-* gamemode: freeze tag
-* gamemode: instagib
-* gamemode: laserarena
-* gamemode: basketball-pro
-* heavy movement-changes ahead
+* added "no Selfdamage"-setting
+* added "double Rifledamage"-setting
+* added gamemode "InstaGib"
+* added "singleGrenade"-setting
+* added playeroption "auto-switch empty gun"
+* added gamemode "Survivor"
+* added gamemode "TeamSurvivor"
+* added team indicator to hud
+* added killmessage
+* added splashdamage

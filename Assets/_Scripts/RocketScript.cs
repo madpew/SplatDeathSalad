@@ -44,12 +44,20 @@ public class RocketScript : MonoBehaviour {
 			if (shooterIdx != -1) theNetwork.players[shooterIdx].fpsEntity.gameObject.layer = 2;
 			
 			Vector3 rayDirection = (transform.position - lastPos).normalized;
-			if (Physics.SphereCast(lastPos, 0.15f, rayDirection, out hitInfo, Vector3.Distance(transform.position, lastPos), layerMask)){
-				active = false;
-				if (theNetwork.isServer){
-					DetonateNow();
+			if (Physics.SphereCast(lastPos, 0.15f, rayDirection, out hitInfo, Vector3.Distance(transform.position, lastPos)*2, layerMask)){
+				
+				if (hitInfo.collider.gameObject.layer == 8 || hitInfo.collider.gameObject.layer == 0)
+				{
+					active = false;
+					//if (theNetwork.isServer){// does this work now ?
+						if (hitInfo.collider.gameObject.layer == 8)
+							DetonateNow(false);
+						else
+							DetonateNow(true);
+					//}
 				}
 			}
+			
 			//put Shooter on Layer8
 			if (shooterIdx != -1) theNetwork.players[shooterIdx].fpsEntity.gameObject.layer = 8;
 			lastPos = transform.position;
@@ -58,13 +66,16 @@ public class RocketScript : MonoBehaviour {
 			if (life<=0f){
 				active = false;
 				if (theNetwork.isServer){
-					DetonateNow();
+					DetonateNow(true);
 				}
 			}
 		}
 	}
 	
-	void DetonateNow(){
-		theNetwork.Detonate("rocket", transform.position, shooterID, viewID);
+	void DetonateNow(bool isSplash){
+		if (isSplash)
+			theNetwork.Detonate("rocketsplash", transform.position, shooterID, viewID);
+		else	
+			theNetwork.Detonate("rocket", transform.position, shooterID, viewID);
 	}
 }

@@ -62,12 +62,16 @@ public class SophieNetworkScript : MonoBehaviour {
 	public bool autoPickup = false;
 	public bool autoPickupHealth = false;
 	public bool announcer = true;
+	public bool autoSwitch = false;
 	
 	public float gameVolume = 1f;
 	
 	// --------- Init stuff ---------
 	void Start(){
 		DontDestroyOnLoad(this);
+		MasterServer.dedicatedServer = true;
+		MasterServer.ipAddress = "84.113.142.137";
+		
 		
 		Application.targetFrameRate = 60;
 		
@@ -132,24 +136,26 @@ public class SophieNetworkScript : MonoBehaviour {
 		
 		if (isServer){
 			//we are server, lets check to see if anyone got hurt in the detonation
+			int shooterIndex = -1;
+			for (int k=0; k<players.Count; k++){
+				if (players[k].viewID == shooterID) shooterIndex = k;
+			}
+			
 			for (int i=0; i<players.Count; i++){
-				if (Vector3.Distance(position, players[i].fpsEntity.transform.position) < FPSArtillery.GetDetonationRadius(weaponType) + 0.5f){
+				if (Vector3.Distance(position, players[i].fpsEntity.transform.position) <= FPSArtillery.GetDetonationRadius(weaponType)){
 					//player in range
 					
 					bool skip = false;
 					//ignore if on the same team as the person who fired
 					if (gameSettings.teamBased && !gameSettings.allowFriendlyFire){
-						int shooterIndex = -1;
-						for (int k=0; k<players.Count; k++){
-							if (players[k].viewID == shooterID) shooterIndex = k;
-						}
+						
 						if (shooterIndex != -1 && players[i].team == players[shooterIndex].team && i != shooterIndex) skip = true;
 					}
 					
 					if (players[i].health>0f && !skip){
 						
 						//networkView.RPC("RegisterHitRPC", RPCMode.Server, weaponType, shooterID, players[i].viewID);
-						RegisterHitRPC(weaponType, shooterID, players[i].viewID, players[i].fpsEntity.transform.position);
+						RegisterHitRPC(weaponType, shooterID, players[i].viewID, position);	//changed to position
 					}
 				}
 			}
@@ -166,7 +172,6 @@ public class SophieNetworkScript : MonoBehaviour {
 		//somebody fired a shot, let's show it
 		
 		lastRPCtime = Time.time;
-		
 		artilleryScript.Shoot(weaponType, origin, direction, end, shooterID, bulletID, info.timestamp, hit);
 	}
 	
@@ -182,6 +187,24 @@ public class SophieNetworkScript : MonoBehaviour {
 			RegisterHitRPC( weaponType, shooterID, victimID, hitPos);
 		}
 	}
+	
+	[RPC]
+	void AnnounceAirrocket(NetworkViewID shooter)
+	{
+		lastRPCtime = Time.time;
+		
+		if (localPlayer.viewID == shooter)
+		{
+			int idx = -1;
+			for(int i=0; i<players.Count; i++)
+				if (players[i].viewID == shooter) idx = i;
+			
+			players[idx].fpsEntity.Announce ("airrocket");
+		    players[idx].currentAward = "airrocket";
+			players[idx].currentAwardTime = 3f;
+		}
+	}
+	
 	[RPC]
 	public void RegisterHitRPC(string weaponType, NetworkViewID shooterID, NetworkViewID victimID, Vector3 hitPos){
 		//one player hit another, lets subtract health, kill, assign scores etc now
@@ -195,6 +218,7 @@ public class SophieNetworkScript : MonoBehaviour {
 		int victimIndex = -1;
 		
 		bool killShot = false;
+		float dealtDamage = 0;
 		
 		
 		
@@ -212,26 +236,51 @@ public class SophieNetworkScript : MonoBehaviour {
 			return;
 		}
 		
+		float Distance = Vector3.Distance(hitPos, players[victimIndex].fpsEntity.transform.position);
+		
 		//subtract health
-		if (shooterIndex == victimIndex && (weaponType == "rocket" || weaponType == "grenade")){
+		if (shooterIndex == victimIndex && (weaponType == "rocket" || weaponType == "rocketsplash" ||weaponType == "grenade")){
 			//rocket jumping + grenade jumping
 			if (!gameSettings.noSelfdamage)
-				players[victimIndex].health -= FPSArtillery.GetWeaponDamage(weaponType)*0.3f;
+				dealtDamage = FPSArtillery.GetWeaponDamage(weaponType,Distance)*0.3f;
 		}else{
 			//normal damage
 			if (gameSettings.noSelfdamage && shooterIndex == victimIndex)
 			{
+				if (weaponType == "lava" || weaponType == "suicide")
+				{
+					dealtDamage = FPSArtillery.GetWeaponDamage(weaponType,0);
+				}
 			}
 			else
 			{
-				players[victimIndex].health -= FPSArtillery.GetWeaponDamage(weaponType);
+				dealtDamage = FPSArtillery.GetWeaponDamage(weaponType,Distance);
 			}
 		}
+		
+		if (gameSettings.superRifle && weaponType == "rifle") dealtDamage*=2;
+		
+		
+		//Air-Rocket +1 Score Extra
+		if (gameSettings.scoreAirrockets){
+			if ((victimIndex != shooterIndex)&&(!players[victimIndex].fpsEntity.grounded) && players[victimIndex].health > 0){
+				if (weaponType == "rocket"){
+					players[shooterIndex].currentScore++;
+					if (isServer)
+						networkView.RPC("AnnounceAirrocket",RPCMode.All,shooterID);
+				}
+			}
+		}
+		
+		players[victimIndex].health -= dealtDamage;
+		
 		if (players[victimIndex].health<=0f){
 			//player died
 			players[victimIndex].health = 0f;
 			killShot = true;
 		}
+		
+		
 		
 		//scores/kills/death stats
 		if (killShot){
@@ -240,24 +289,9 @@ public class SophieNetworkScript : MonoBehaviour {
 			
 			players[shooterIndex].kills++;
 			if (gameSettings.killsIncreaseScore) players[shooterIndex].currentScore++;
-			
-			//Air-Rocket +1 Score Extra
-			if (gameSettings.scoreAirrockets) {
-				if ((victimIndex != shooterIndex) &&(!players[victimIndex].fpsEntity.grounded)){
-					if (weaponType == "rocket"){
-						players[shooterIndex].currentScore++;
-					}
-				}
-			}
 		}
 		
-		//team stuff
-		if (killShot && gameSettings.teamBased){
-			if (players[victimIndex].team == 1 && players[shooterIndex].team == 2 && gameSettings.deathsSubtractScore) team1Score--;
-			if (players[victimIndex].team == 2 && players[shooterIndex].team == 1 && gameSettings.deathsSubtractScore) team2Score--;
-			if (players[shooterIndex].team == 1 && players[victimIndex].team == 2 && gameSettings.killsIncreaseScore) team1Score++;
-			if (players[shooterIndex].team == 2 && players[victimIndex].team == 1 && gameSettings.killsIncreaseScore) team2Score++;
-		}
+		
 		
 		//assign results
 		networkView.RPC("AssignPlayerStats", RPCMode.All, victimID, players[victimIndex].health, players[victimIndex].kills, players[victimIndex].deaths, players[victimIndex].currentScore);
@@ -265,11 +299,38 @@ public class SophieNetworkScript : MonoBehaviour {
 		
 		
 		if (killShot) networkView.RPC("AnnounceKill", RPCMode.All, weaponType, shooterID, victimID);
-		if (gameSettings.teamBased && killShot) networkView.RPC("AnnounceTeamScores", RPCMode.Others, team1Score, team2Score);
+		
+		//team stuff
+		if (killShot && gameSettings.teamBased)
+		{
+			if (gameSettings.playerLives > 0){
+				int t1s = 0;
+				int t2s = 0;
+				
+				for(int i=0; i<players.Count; i++)
+				{
+					if (players[i].team == 1) t1s += players[i].lives;
+					if (players[i].team == 2) t2s += players[i].lives;
+				}
+				team1Score = t1s;
+				team2Score = t2s;
+			}
+			else
+			{
+				if (players[victimIndex].team == 1 && players[shooterIndex].team == 2 && gameSettings.deathsSubtractScore) team1Score--;
+				if (players[victimIndex].team == 2 && players[shooterIndex].team == 1 && gameSettings.deathsSubtractScore) team2Score--;
+				if (players[shooterIndex].team == 1 && players[victimIndex].team == 2 && gameSettings.killsIncreaseScore) team1Score++;
+				if (players[shooterIndex].team == 2 && players[victimIndex].team == 1 && gameSettings.killsIncreaseScore) team2Score++;
+			}
+			
+			networkView.RPC("AnnounceTeamScores", RPCMode.Others, team1Score, team2Score);
+		}
 		
 		//let players see hit
-		networkView.RPC("ShowHit", RPCMode.All, weaponType, hitPos, victimID, FPSArtillery.GetWeaponDamage(weaponType));
-		
+		if (dealtDamage > 0)
+		{
+			networkView.RPC("ShowHit", RPCMode.All, weaponType, hitPos, victimID, dealtDamage);
+		}
 		
 		//check for game over
 		if (gameSettings.winScore > 0){
@@ -305,11 +366,14 @@ public class SophieNetworkScript : MonoBehaviour {
 	void ShowHit(string weaponType, Vector3 hitPos, NetworkViewID viewID, float Dmg){
 		int splatcount = 4;
 		if (weaponType=="pistol") splatcount = 5;
-		if (weaponType=="grenade") splatcount = 15;
+		if (weaponType=="grenade") splatcount = 20;
 		if (weaponType=="machinegun") splatcount = 2;
 		if (weaponType=="rifle") splatcount = 30;
+		if (weaponType=="rifle" && gameSettings.superRifle) splatcount = 60;
 		if (weaponType=="suicide") splatcount = 30;
 		if (weaponType=="rocket") splatcount = 30;
+		if (weaponType=="rocketsplash") splatcount = 20;
+		
 		for (int i=0; i<splatcount; i++){
 			GameObject newSplat = (GameObject)GameObject.Instantiate(splatPrefab);
 			newSplat.transform.position = hitPos;
@@ -336,7 +400,7 @@ public class SophieNetworkScript : MonoBehaviour {
 	void AnnounceGameOver(){
 		gameTimeLeft = 0f;
 		gameOver = true;
-		nextMatchTime = 15f;
+		nextMatchTime = 10f;
 	}
 	
 	[RPC]
@@ -383,17 +447,17 @@ public class SophieNetworkScript : MonoBehaviour {
 		lastRPCtime = Time.time;
 		
 		if (localPlayer.viewID == shooterID) localPlayer.totalKills ++;
-		if (localPlayer.viewID == victimID) localPlayer.totalDeaths ++;
+
 		
+		if (localPlayer.viewID == victimID) localPlayer.totalDeaths ++;
+
 		if (localPlayer.viewID == victimID){
 			for (int i=0; i<players.Count; i++){
 				if (players[i].viewID == shooterID){
-					
 					for (int k=0; k<players.Count; k++){
 						if (players[k].viewID == localPlayer.viewID){
 					
 							players[k].fpsEntity.ourKiller = players[i].fpsEntity.gameObject;
-							
 						}
 					}
 					
@@ -438,12 +502,12 @@ public class SophieNetworkScript : MonoBehaviour {
 				gameTimeLeft = 0f;
 				gameOver = true;
 				
-				nextMatchTime = 15f;
+				nextMatchTime = 10f;
+				if (gameSettings.playerLives == 1) nextMatchTime = 5f;
 				
 				networkView.RPC("AnnounceGameOver", RPCMode.Others);
 			}
 		}
-		
 		
 		ChatMessage newMsg = new ChatMessage();
 		newMsg.sender = "";
@@ -455,6 +519,12 @@ public class SophieNetworkScript : MonoBehaviour {
 		messageScript.messages.Add(newMsg);
 		messageScript.textDisplayTime = Time.time+messageScript.textFadeTime;
 		
+		for (int i=0; i<players.Count; i++)
+			if (players[i].viewID == shooterID && shooterID != victimID)
+			{
+				players[i].killMessage = "You fragged " + victimName;
+				players[i].killMessageTime = 3f;
+			}
 	}
 	
 	
@@ -500,7 +570,7 @@ public class SophieNetworkScript : MonoBehaviour {
 			if (Time.time > lastRPCtime+30f){
 				DisconnectNow();
 				guiScript.menuPoint = "connectionError";
-				errorString = "Client hasn't heard from host for 30 seconds.\nthis is probably because somebody's internet sucks,\nor latency is crazy high.\n\nplay with people closer to you,\nand shut off those torrents and the like! :P";
+				errorString = "Client hasn't heard from host for 30 seconds.\nthis is probably because somebodys internet sucks,\nor latency is crazy high.\n\nplay with people closer to you,\nand shut off those torrents and the like! :P";
 			}
 		}
 		
@@ -509,11 +579,14 @@ public class SophieNetworkScript : MonoBehaviour {
 			for (int i=0; i<players.Count; i++){
 				if (players[i].health<=0f){
 					if (Time.time > players[i].respawnTime){
+						
+						networkView.RPC("RespawnPlayer", RPCMode.All, players[i].viewID);
+						
 						if (gameSettings.playerLives==0 || players[i].lives>0){
 							players[i].health = 100f;
 						}
 						networkView.RPC("AssignPlayerStats", RPCMode.All, players[i].viewID, players[i].health, players[i].kills, players[i].deaths, players[i].currentScore);
-						networkView.RPC("RespawnPlayer", RPCMode.All, players[i].viewID);
+						
 					}
 				}else{
 					players[i].respawnTime = Time.time + gameSettings.respawnWait;
@@ -548,7 +621,8 @@ public class SophieNetworkScript : MonoBehaviour {
 				gameTimeLeft = 0f;
 				gameOver = true;
 				
-				nextMatchTime = 15f;
+				nextMatchTime = 10f;
+				if (gameSettings.playerLives == 1) nextMatchTime = 5f;
 			}
 		}
 		
@@ -559,11 +633,32 @@ public class SophieNetworkScript : MonoBehaviour {
 				nextMatchTime = 0f;
 				
 				if (isServer){
-					//begin next match using current settings
-					serverGameChange = true;
-					lastGameWasTeamBased = gameSettings.teamBased;
-					gameViewID = Network.AllocateViewID();
-					RequestGameData();
+					//check requirementsfirst!
+					bool checkok = true;
+					if (gameSettings.playerLives > 0)
+					{
+						if (players.Count < 2) checkok = false;
+						else if (gameSettings.teamBased)
+						{
+							int cntr = 0;
+							int cntb = 0;
+							for (int j=0; j<players.Count; j++)
+							{
+								if (players[j].team == 1) cntr++;
+								if (players[j].team == 2) cntb++;
+							}
+							
+							if (cntb < 1 || cntr < 1) checkok = false;
+						}
+					}
+					if (checkok)
+					{
+						//begin next match using current settings
+						serverGameChange = true;
+						lastGameWasTeamBased = gameSettings.teamBased;
+						gameViewID = Network.AllocateViewID();
+						RequestGameData();
+					}
 				}
 			}
 		}
@@ -694,6 +789,17 @@ public class SophieNetworkScript : MonoBehaviour {
 	[RPC]
 	void ServerSaysHi(){
 		lastRPCtime = Time.time;
+	}
+	
+	public void SyncBall(Vector3 pos, Vector3 dir)
+	{
+		networkView.RPC("SyncBallRPC", RPCMode.Others, pos, dir);
+	}
+	
+	[RPC]
+	void SyncBallRPC(Vector3 pos, Vector3 dir)
+	{
+		basketball.GetComponent<BasketballScript>().SyncBall(pos,dir);
 	}
 	
 	[RPC]
@@ -860,6 +966,8 @@ public class SophieNetworkScript : MonoBehaviour {
 		gameSettings.offhandCooldown = modeSettings.offhandCooldown;
 		gameSettings.fallingDamage = modeSettings.fallingDamage;
 		gameSettings.noSelfdamage = modeSettings.noSelfdamage;
+		gameSettings.superRifle = modeSettings.superRifle;
+		gameSettings.singleGrenades = modeSettings.singleGrenades;
 		gameSettings.spawnGunA = modeSettings.spawnGunA;
 		gameSettings.spawnGunB = modeSettings.spawnGunB;
 		gameSettings.pickupSlot1 = modeSettings.pickupSlot1;
@@ -913,14 +1021,14 @@ public class SophieNetworkScript : MonoBehaviour {
 			}
 		}
 		
-		networkView.RPC("BroadcastNewGame", RPCMode.All, gameViewID, gameSettings.gameModeName, gameSettings.levelName, gameSettings.gameModeDescription, gameSettings.winScore, gameSettings.gameTime, gameSettings.respawnWait, gameSettings.deathsSubtractScore, gameSettings.killsIncreaseScore, gameSettings.teamBased, targetTeam, gameSettings.allowFriendlyFire, gameSettings.pitchBlack, gameOver, gameTimeLeft, gameSettings.spawnGunA, gameSettings.spawnGunB, gameSettings.pickupSlot1, gameSettings.pickupSlot2, gameSettings.pickupSlot3, gameSettings.pickupSlot4, gameSettings.pickupSlot5, livesBroadcast, serverGameChange, gameSettings.basketball, gameSettings.fallingDamage, gameSettings.offhandCooldown, gameSettings.scoreAirrockets, gameSettings.noSelfdamage);
+		networkView.RPC("BroadcastNewGame", RPCMode.All, gameViewID, gameSettings.gameModeName, gameSettings.levelName, gameSettings.gameModeDescription, gameSettings.winScore, gameSettings.gameTime, gameSettings.respawnWait, gameSettings.deathsSubtractScore, gameSettings.killsIncreaseScore, gameSettings.teamBased, targetTeam, gameSettings.allowFriendlyFire, gameSettings.pitchBlack, gameOver, gameTimeLeft, gameSettings.spawnGunA, gameSettings.spawnGunB, gameSettings.pickupSlot1, gameSettings.pickupSlot2, gameSettings.pickupSlot3, gameSettings.pickupSlot4, gameSettings.pickupSlot5, livesBroadcast, serverGameChange, gameSettings.basketball, gameSettings.fallingDamage, gameSettings.offhandCooldown, gameSettings.scoreAirrockets, gameSettings.noSelfdamage, gameSettings.superRifle, gameSettings.singleGrenades);
 	}
 	
 	public float gameTimeLeft = 0f;
 	public float nextMatchTime = 0f;
 	
 	[RPC]
-	void BroadcastNewGame(NetworkViewID viewID, string gameModeName, string levelName, string gameModeDescription, int winScore, float gameTime, float respawnWait, bool deathsSubtractScore, bool killsIncreaseScore, bool teamBased, int targetTeam, bool allowFriendlyFire, bool pitchBlack, bool gameIsOver, float serverGameTime, int spawnGunA, int spawnGunB, int pickupSlot1, int pickupSlot2, int pickupSlot3, int pickupSlot4, int pickupSlot5, int playerLives, bool newGame, bool basketball, bool fallingDamage, bool offhandCooldown, bool scoreAirrockets, bool noSelfdamage, NetworkMessageInfo info){
+	void BroadcastNewGame(NetworkViewID viewID, string gameModeName, string levelName, string gameModeDescription, int winScore, float gameTime, float respawnWait, bool deathsSubtractScore, bool killsIncreaseScore, bool teamBased, int targetTeam, bool allowFriendlyFire, bool pitchBlack, bool gameIsOver, float serverGameTime, int spawnGunA, int spawnGunB, int pickupSlot1, int pickupSlot2, int pickupSlot3, int pickupSlot4, int pickupSlot5, int playerLives, bool newGame, bool basketball, bool fallingDamage, bool offhandCooldown, bool scoreAirrockets, bool noSelfdamage, bool superRifle, bool singleGrenades, NetworkMessageInfo info){
 		//we've received game info from the server
 		lastRPCtime = Time.time;
 		
@@ -979,6 +1087,8 @@ public class SophieNetworkScript : MonoBehaviour {
 			gameSettings.scoreAirrockets = scoreAirrockets;
 			gameSettings.fallingDamage = fallingDamage;
 			gameSettings.noSelfdamage = noSelfdamage;
+			gameSettings.superRifle = superRifle;
+			gameSettings.singleGrenades = singleGrenades;
 		}
 		
 		if (targetTeam != -1){
@@ -1001,8 +1111,18 @@ public class SophieNetworkScript : MonoBehaviour {
 				}
 			}
 		}
+		
 		team1Score = 0;
 		team2Score = 0;
+		
+		if (playerLives > 0 && teamBased)
+		{
+			for(int i=0; i<players.Count; i++)
+			{
+				if (players[i].team == 1) team1Score += players[i].lives;
+				if (players[i].team == 2) team2Score += players[i].lives;
+			}
+		}
 		
 		//let's clear stuff out if we are already playing
 		preppingLevel = false;
@@ -1036,6 +1156,7 @@ public class SophieNetworkScript : MonoBehaviour {
 			//drop the basket ball in
 			if (gameSettings.basketball){
 				basketball = (GameObject)GameObject.Instantiate(basketballPrefab);
+				basketball.layer = 13;
 				if (!isServer) networkView.RPC("RequestBallStatus", RPCMode.Server);
 			}else{
 				if (GameObject.Find("_BasketRed") != null) Destroy(GameObject.Find("_BasketRed"));

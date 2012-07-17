@@ -443,8 +443,17 @@ public class FPSEntity : MonoBehaviour {
 						if (theNetwork.autoPickup) pickup = true;
 						if (theNetwork.autoPickupHealth && offeredPickup == "health") pickup = true;
 						
-						if (pickup){
-							//pickup weapon.
+						if (pickup){ //pickup weapon.
+							
+							if (offeredPickup != "health" && holsterGun == -1)
+							{
+								//its a weapon and we got an empty slot.
+								//holster handgun so we don't replace it
+								holsterGun = handGun;
+								holsterGunCooldown = handGunCooldown;
+								handGun = -1;
+								handGunCooldown = 0;
+							}
 							
 							for (int i=0; i<artillery.gunTypes.Length; i++){
 								if (offeredPickup == artillery.gunTypes[i].gunName){
@@ -475,7 +484,6 @@ public class FPSEntity : MonoBehaviour {
 					}
 				}
 				offeredPickup = "";
-				
 				
 				theGUI.gunA = handGun;
 				theGUI.gunACooldown = handGunCooldown;
@@ -515,10 +523,14 @@ public class FPSEntity : MonoBehaviour {
 					inputVector.y = 0f;
 					inputVector.Normalize();
 					
+					if (grounded) moveVec = inputVector * 0.1f + lastMoveVector * 0.9f; //slide test
+					else
+						moveVec = inputVector * 0.01f + lastMoveVector * 0.99f; //aircontrol
+					
 					if (!crouched){
-						cc.Move(inputVector * Time.deltaTime * 10f);
+						cc.Move(moveVec * Time.deltaTime * 10f);
 					}else{
-						cc.Move(inputVector * Time.deltaTime * 5f);
+						cc.Move(moveVec * Time.deltaTime * 5f);
 					}
 					
 					
@@ -572,7 +584,7 @@ public class FPSEntity : MonoBehaviour {
 					crouched = false;
 					if (Input.GetKey("left shift") || Input.GetKey("left ctrl")) crouched = true;
 					
-					moveVec = inputVector;
+					
 					
 					Ray lavaRay = new Ray( lastPos, transform.position - lastPos);
 					RaycastHit lavaHit = new RaycastHit();
@@ -612,8 +624,12 @@ public class FPSEntity : MonoBehaviour {
 					}
 					
 					if (handGun>=0 && handGunCooldown > 0f && handGunCooldown - Time.deltaTime <= 0f && artillery.gunTypes[handGun].fireCooldown>=0.5f) PlaySound("reload");
-					handGunCooldown -= Time.deltaTime;
-					if (handGunCooldown<0f) handGunCooldown = 0f;
+					
+					if (handGun >=0)
+					{
+						handGunCooldown -= Time.deltaTime;
+						if (handGunCooldown<0f) handGunCooldown = 0f;
+					}
 					
 					if (theNetwork.gameSettings.offhandCooldown) {
 						holsterGunCooldown -= Time.deltaTime;
@@ -685,24 +701,39 @@ public class FPSEntity : MonoBehaviour {
 							}
 						}
 					}
+					
+					if (theNetwork.autoSwitch)
+					{
+						if (handGun == -1 && holsterGun != -1)
+						{
+							handGun = holsterGun;
+							handGunCooldown = holsterGunCooldown;
+							holsterGun = -1;
+							holsterGunCooldown = 0;
+						}
+					}
+					
 					if ((Input.GetKeyDown("mouse 1") || Input.GetKeyDown("q")) && Screen.lockCursor == true){
-						//swap guns
-						int tempInt = handGun;
-						float tempFloat = handGunCooldown;
-						handGun = holsterGun;
-						handGunCooldown = holsterGunCooldown;
-						holsterGun = tempInt;
-						holsterGunCooldown = tempFloat;
 						
-						gunRecoil += Vector3.right * 5f;
-						gunRecoil -= Vector3.up * 5f;
-						PlaySound("weaponChange");
+						if (holsterGun != -1)
+						{
+							//swap guns
+							int tempInt = handGun;
+							float tempFloat = handGunCooldown;
+							handGun = holsterGun;
+							handGunCooldown = holsterGunCooldown;
+							holsterGun = tempInt;
+							holsterGunCooldown = tempFloat;
+						
+							gunRecoil += Vector3.right * 5f;
+							gunRecoil -= Vector3.up * 5f;
+							PlaySound("weaponChange");
+						}
 					}
 					
 					//ball throwing
 					if (thisPlayer.hasBall && Input.GetKeyDown("mouse 0") && Screen.lockCursor == true){
 						theNetwork.ThrowBall(Camera.main.transform.position, Camera.main.transform.forward, 20f);
-						
 					}
 					
 					if (Input.GetKeyDown("k")){
@@ -1027,23 +1058,30 @@ public class FPSEntity : MonoBehaviour {
 					
 					if (weaponType == "rifle")
 					{
+						int tmpidx = -1;
+					
+						for(int i=0; i<theNetwork.players.Count; i++)
+						{
+							if (thisPlayer.viewID == theNetwork.players[i].viewID) tmpidx = i;
+						}
+					
 						thisPlayer.riflehits++;
 						if (thisPlayer.riflehits > 1 && thisPlayer.riflehits <= 3)
 						{
-							thisPlayer.fpsEntity.Announce ("impressive");
 							if (thisPlayer.local)
 							{
-								theNetwork.localPlayer.currentAward = "sharpshooter";
-								theNetwork.localPlayer.currentAwardTime = 3f;
+								theNetwork.players[tmpidx].fpsEntity.Announce ("impressive");
+								theNetwork.players[tmpidx].currentAward = "sharpshooter";
+								theNetwork.players[tmpidx].currentAwardTime = 3f;
 							}
 						}
 						else if (thisPlayer.riflehits > 3)
 						{
-							thisPlayer.fpsEntity.Announce ("outstanding");
 							if (thisPlayer.local)
 							{
-								theNetwork.localPlayer.currentAward = "sharpshooter";
-								theNetwork.localPlayer.currentAwardTime = 3f;
+								theNetwork.players[tmpidx].fpsEntity.Announce ("outstanding");
+								theNetwork.players[tmpidx].currentAward = "sharpshooter";
+								theNetwork.players[tmpidx].currentAwardTime = 3f;
 							}
 						}
 					}
@@ -1158,7 +1196,6 @@ public class FPSEntity : MonoBehaviour {
 		
 		float timeDelta = (float)(Network.time - lastUpdateTime);
 		lastUpdateTime = Network.time;
-		
 		
 		if (!crouched){
 			cc.Move(moveVec * timeDelta * 10f);

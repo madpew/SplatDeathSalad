@@ -20,10 +20,12 @@ public class BasketballScript : MonoBehaviour {
 	
 	private float throwTime = 0f;
 	
+	private float lastSync = 0f;
+	
 	// Use this for initialization
 	void Start () {
 		theNetwork = GameObject.Find("_SophieNet").GetComponent<SophieNetworkScript>();
-		
+		gameObject.layer = 13;
 		ResetBall();
 	}
 	
@@ -36,6 +38,14 @@ public class BasketballScript : MonoBehaviour {
 		lastPos = transform.position;
 		moveVector = Vector3.zero;
 		watchdogOn = false;
+	}
+	
+	public void SyncBall(Vector3 pos, Vector3 dir){
+		if (!held){
+			lastPos = pos;
+			transform.position = pos;
+			moveVector = dir;
+		}
 	}
 	
 	public void Throw(Vector3 fromPos, Vector3 direction, float strength){
@@ -78,11 +88,13 @@ public class BasketballScript : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (held){
+			gameObject.layer = 13;	//no hit
 			watchdog = 0f;
 			watchdogOn = true;
 		}
 		else
 		{
+			gameObject.layer = 13;	//ball
 			if (watchdogOn)
 			{
 				watchdog += Time.deltaTime;
@@ -175,6 +187,15 @@ public class BasketballScript : MonoBehaviour {
 							captured = true;
 						}
 					}
+				}
+				
+				//Sync:
+				
+				lastSync -= Time.deltaTime;
+				if (lastSync < 0)
+				{
+					lastSync = 5f;
+					theNetwork.SyncBall(transform.position, moveVector);
 				}
 				
 			}

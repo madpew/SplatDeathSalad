@@ -45,6 +45,11 @@ public class FPSArtillery : MonoBehaviour {
 			if (activeGrenades[i] != null && activeGrenades[i].gameObject != null) Destroy(activeGrenades[i].gameObject);
 		}
 		activeGrenades = new List<GrenadeScript>();
+		
+		for (int i=0; i<activeRockets.Count; i++){
+			if (activeRockets[i] != null && activeRockets[i].gameObject != null) Destroy(activeRockets[i].gameObject);
+		}
+		activeRockets = new List<RocketScript>();
 	}
 	
 	public void Shoot(string weaponType, Vector3 origin, Vector3 direction, Vector3 end, NetworkViewID shooterID, NetworkViewID bulletID, double time, bool hit){
@@ -90,7 +95,7 @@ public class FPSArtillery : MonoBehaviour {
 				
 				GameObject newBullet2 = (GameObject)GameObject.Instantiate(swapperBulletPrefab);
 				newBullet2.GetComponent<SwapperBullet>().start = origin;
-				if (localFire && !hit) newBullet2.GetComponent<SwapperBullet>().start = localstart;
+				if (localFire) newBullet2.GetComponent<SwapperBullet>().start = localstart;
 				newBullet2.GetComponent<SwapperBullet>().end = end;
 				newBullet2.GetComponent<SwapperBullet>().customColor = true;
 				newBullet2.GetComponent<SwapperBullet>().Spread = 0.05f;
@@ -98,7 +103,7 @@ public class FPSArtillery : MonoBehaviour {
 				
 				GameObject newBullet3 = (GameObject)GameObject.Instantiate(swapperBulletPrefab);
 				newBullet3.GetComponent<SwapperBullet>().start = origin;
-				if (localFire && !hit) newBullet3.GetComponent<SwapperBullet>().start = localstart;
+				if (localFire) newBullet3.GetComponent<SwapperBullet>().start = localstart;
 				newBullet3.GetComponent<SwapperBullet>().end = end;
 				newBullet3.GetComponent<SwapperBullet>().customColor = true;
 				newBullet3.GetComponent<SwapperBullet>().Spread = 0.05f;
@@ -137,6 +142,16 @@ public class FPSArtillery : MonoBehaviour {
 			newGrenade.GetComponent<GrenadeScript>().shooterID = shooterID;
 			newGrenade.GetComponent<GrenadeScript>().detonationTime = 2f;
 			activeGrenades.Add(newGrenade.GetComponent<GrenadeScript>());
+			
+			if (theNetwork.gameSettings.singleGrenades)
+			{
+				for (int i=0; i<theNetwork.players.Count; i++){
+					if (theNetwork.players[i].viewID == shooterID){
+						theNetwork.players[i].fpsEntity.handGun = -1;
+						theNetwork.players[i].fpsEntity.handGunCooldown = 0f;
+					}
+				}
+			}
 		}
 		if (weaponType == "rocketlauncher"){
 			GameObject newRocket = (GameObject)GameObject.Instantiate(rocketPrefab);
@@ -218,16 +233,26 @@ public class FPSArtillery : MonoBehaviour {
 		
 	}
 	
-	public static float GetWeaponDamage(string weaponType){
+	public static float GetWeaponDamage(string weaponType, float Distance){
 		if (weaponType == "pistol") return 10f;
-		if (weaponType == "grenade") return 70f;
 		if (weaponType == "machinegun") return 5f;
 		if (weaponType == "rifle") return 60f;
 		if (weaponType == "suicide") return 9999f;
-		if (weaponType == "rocket") return 70f;
 		if (weaponType == "lava") return 9999f;
 		if (weaponType == "legs") return 10f;
 		if (weaponType == "bones") return 20f;
+		
+		//Splashdamage
+		if (weaponType == "grenade")
+		{
+			return (70f/GetDetonationRadius("grenade")) * (GetDetonationRadius("grenade")-Distance);
+		}
+		
+		if (weaponType == "rocket" || weaponType == "rocketsplash")
+		{
+			return (70f/GetDetonationRadius("rocket")) * (GetDetonationRadius("rocket")-Distance);
+		}
+		
 		return 0;
 	}
 	
@@ -237,25 +262,17 @@ public class FPSArtillery : MonoBehaviour {
 				
 				//grenade jumping
 				for (int k=0; k<theNetwork.players.Count; k++){
-					if (theNetwork.players[k].local){
+					
 						float Dist = Vector3.Distance(theNetwork.players[k].fpsEntity.transform.position, activeGrenades[i].transform.position);
 						float push = 5;
 						if (Dist < GetDetonationRadius("grenade")){
+						
+						if (theNetwork.players[k].local){
 							
-							if (Dist > GetDetonationRadius("grenade")/2)
-							{
-								push = 3;
-							}
-							
-							if (theNetwork.players[k].fpsEntity.transform.position.y > activeGrenades[i].transform.position.y){
+							if (theNetwork.players[k].fpsEntity.transform.position.y - 0.2f > activeGrenades[i].transform.position.y){
 								theNetwork.players[k].fpsEntity.yMove += push;
-							} else if (theNetwork.players[k].fpsEntity.transform.position.y < activeGrenades[i].transform.position.y){
-								theNetwork.players[k].fpsEntity.yMove -= push;
 							}
-							
-							theNetwork.players[k].fpsEntity.grounded = false;
 							theNetwork.players[k].fpsEntity.sendRPCUpdate = true;
-							
 							}
 						}
 					}
@@ -263,7 +280,6 @@ public class FPSArtillery : MonoBehaviour {
 				
 				GameObject grenadeFlash = (GameObject)GameObject.Instantiate(grenadeFlashPrefab);
 				grenadeFlash.transform.position = activeGrenades[i].transform.position;
-				grenadeFlash.transform.localScale = new Vector3(0.1f,0.1f,0.1f);
 				grenadeFlash.GetComponent<GrenadeFlashScript>().Rad = FPSArtillery.GetDetonationRadius("grenade");
 				
 				
@@ -278,7 +294,6 @@ public class FPSArtillery : MonoBehaviour {
 				
 			}
 		}
-		
 		
 		for (int i=0; i<activeRockets.Count; i++){
 			if (viewID == activeRockets[i].viewID){
@@ -295,40 +310,13 @@ public class FPSArtillery : MonoBehaviour {
 						float Dist = Vector3.Distance(theNetwork.players[k].fpsEntity.transform.position, activeRockets[i].transform.position);
 						float push = 5;
 						if (Dist < GetDetonationRadius("rocket")){
-							
-						if (theNetwork.gameSettings.scoreAirrockets) {
-							if (!theNetwork.players[k].fpsEntity.grounded && theNetwork.players[k].health > 0)
-							{
-								if (shooteridx != -1 && shooteridx != k)
-								{
-									theNetwork.players[shooteridx].fpsEntity.Announce ("airrocket");
-									
-									if (theNetwork.players[shooteridx].local)
-									{
-										theNetwork.localPlayer.currentAward = "airrocket";
-										theNetwork.localPlayer.currentAwardTime = 3f;
-									}
-								}
-							}
-						}
-						
 						
 						if (theNetwork.players[k].local){
 							
-							if (Dist > GetDetonationRadius("rocket")/2)
-							{
-								push = 3;
-							}
-						
-							if (theNetwork.players[k].fpsEntity.transform.position.y > activeRockets[i].transform.position.y){
+							if (theNetwork.players[k].fpsEntity.transform.position.y - 0.2f > activeRockets[i].transform.position.y){
 								theNetwork.players[k].fpsEntity.yMove += push;
-							} else if (theNetwork.players[k].fpsEntity.transform.position.y < activeRockets[i].transform.position.y){
-								theNetwork.players[k].fpsEntity.yMove -= push;
 							}
-							
-							theNetwork.players[k].fpsEntity.grounded = false;
 							theNetwork.players[k].fpsEntity.sendRPCUpdate = true;
-							
 							}
 						}
 					}
@@ -337,7 +325,6 @@ public class FPSArtillery : MonoBehaviour {
 				
 				GameObject grenadeFlash = (GameObject)GameObject.Instantiate(grenadeFlashPrefab);
 				grenadeFlash.transform.position = activeRockets[i].transform.position;
-				grenadeFlash.transform.localScale = new Vector3(0.1f,0.1f,0.1f);
 				grenadeFlash.GetComponent<GrenadeFlashScript>().Rad = FPSArtillery.GetDetonationRadius("rocket");
 				
 				GameObject rocketSoundObj = (GameObject)GameObject.Instantiate(soundObjectPrefab);
@@ -354,6 +341,7 @@ public class FPSArtillery : MonoBehaviour {
 	public static float GetDetonationRadius(string weaponType){
 		if (weaponType == "grenade") return 5;
 		if (weaponType == "rocket") return 4;
+		if (weaponType == "rocketsplash") return 4;
 		return 0;
 	}
 	
