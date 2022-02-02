@@ -4,6 +4,9 @@ This is a modified version of SplatDeathSalad, a game by Sophie Houlden for the 
 
 Play it here: http://pixelsiege.net/sdspew/
 
+Since this repository never got updated to the last version and the sources have long been lost I decided to upload the last version I could recover from a broken harddrive.
+Good luck: http://pixelsiege.net/ref/2014/SDSPEW_recovered.zip
+
 # further information: #
 * Original Competition Entry: http://7dfps.org/?projects=splat-death-salad
 * Sophies website: http://www.sophiehoulden.com/
